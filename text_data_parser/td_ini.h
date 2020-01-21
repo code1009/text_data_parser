@@ -91,11 +91,12 @@ TD_API void td_ini_parse (td_ini_t* ctx, td_pointer_t pointer, td_uint_t size);
 //===========================================================================
 // handler에서 호출
 //===========================================================================
-TD_API td_string_t* td_ini_line    (td_ini_t* ctx);
-TD_API td_string_t* td_ini_comment (td_ini_t* ctx);
-TD_API td_string_t* td_ini_section (td_ini_t* ctx);
-TD_API td_string_t* td_ini_variable(td_ini_t* ctx);
-TD_API td_string_t* td_ini_value   (td_ini_t* ctx);
+TD_API td_pointer_t td_ini_parameter(td_ini_t* ctx);
+TD_API td_string_t* td_ini_line     (td_ini_t* ctx);
+TD_API td_string_t* td_ini_comment  (td_ini_t* ctx);
+TD_API td_string_t* td_ini_section  (td_ini_t* ctx);
+TD_API td_string_t* td_ini_variable (td_ini_t* ctx);
+TD_API td_string_t* td_ini_value    (td_ini_t* ctx);
 
 
 

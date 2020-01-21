@@ -1,10 +1,10 @@
-// text_data_parser.cpp : ÄÜ¼Ö ÀÀ¿ë ÇÁ·Î±×·¥¿¡ ´ëÇÑ ÁøÀÔÁ¡À» Á¤ÀÇÇÕ´Ï´Ù.
+ï»¿#if 1
+// text_data_parser.cpp : ì½˜ì†” ì‘ìš© í”„ë¡œê·¸ëž¨ì— ëŒ€í•œ ì§„ìž…ì ì„ ì •ì˜í•©ë‹ˆë‹¤.
 //
 
 #include "stdafx.h"
 
 
-#if 1
 /////////////////////////////////////////////////////////////////////////////
 //
 // test
@@ -24,8 +24,9 @@ td_char_t _text[]="\
 variable=value                    \r\n\
                                   \r\n\
 [section1]                        \r\n\
-variable=value1                 \\\r\n\
-value2=value3                     \r\n\
+variable=value1,                \\\r\n\
+value2, value3,                 \\\r\n\
+ value4,value5                    \r\n\
                                   \r\n\
 [\" section2 \\\" 0] \"]          \r\n\
 variable1=value               \\\\\r\n\
@@ -39,10 +40,10 @@ var_s  = \"xxx\"                  \r\n\
 var_ip = 255.0.254.0              \r\n\
                                   \r\n\
 [array]                           \r\n\
-element = , = 1,(2),a,[], \" x \" \r\n\
+element = , = 1, (2), a, , [], { \" x, \" }, 1 \r\n\
                                   \r\n\
-[ÇÑ±Û]                            \r\n\
-º¯¼ö = °ª                         \r\n\
+[í•œê¸€]                            \r\n\
+ë³€ìˆ˜ = ê°’                         \r\n\
 ";
 
 typedef struct _user_data_t
@@ -55,7 +56,7 @@ typedef struct _user_data_t
 
 	char hangul[100];
 
-	char array[10][100];
+	char array[20][100];
 }
 user_data_t;
 
@@ -72,86 +73,101 @@ static void print(td_string_t* p)
 		printf("%c", ch);
 	}
 }
-
 /*
-static void array_element (td_array_parser_t* ctx)
+static void array_element (td_array_t* ctx)
 {
 	user_data_t* data;
-
-	data = (user_data_t*)ctx->parameter;
-
-
-	td_string_copy_to_c_string(&ctx->element_value, data->array[ctx->element_index], sizeof(data->array[ctx->element_index]));
+	td_uint_t    index;
+	td_string_t* value;
 
 
-	printf("\tarray[%d]={",ctx->element_index);
+	data  = (user_data_t*)td_array_parameter(ctx);
+	index = td_array_element_index(ctx);
+	value = td_array_element(ctx);
+
+	td_string_copy_to_c_string(value, data->array[index], sizeof(data->array[index]) );
+
+
+	printf("\tarray[%d]={",index);
 	print (&ctx->element_value);
 	printf("}\r\n");
 }
 */
 
-static void line     (td_ini_t* ctx){printf("\r\nline    ={");print(td_ini_line    (ctx));printf("}\r\n");}
-
+static void line     (td_ini_t* ctx){printf("\r\n"
+                                            "line    ={");print(td_ini_line    (ctx));printf("}\r\n");}
 static void comment  (td_ini_t* ctx){printf("comment ={");print(td_ini_comment (ctx));printf("}\r\n");}
 static void section  (td_ini_t* ctx){printf("section ={");print(td_ini_section (ctx));printf("}\r\n");}
 static void variable (td_ini_t* ctx){printf("variable={");print(td_ini_variable(ctx));printf("}\r\n");}
 static void value    (td_ini_t* ctx){printf("value   ={");print(td_ini_value   (ctx));printf("}\r\n");}
-
+                                            
 static void element  (td_ini_t* ctx){printf("element ={");print(td_ini_section (ctx));printf("}{");
                                                           print(td_ini_variable(ctx));printf("}{");
                                                           print(td_ini_value   (ctx));printf("}\r\n");
 	user_data_t* data;
 
-	data = (user_data_t*)ctx->parameter;
+	data = (user_data_t*)td_ini_parameter(ctx);
 
 
 	td_char_t s[100];
 
-	td_string_copy_to_c_string(td_ini_section (ctx), s, 100);
-	td_string_copy_to_c_string(td_ini_variable(ctx), s, 100);
-	td_string_copy_to_c_string(td_ini_value   (ctx), s, 100);
+
+	td_string_copy_to_c_string(td_ini_section (ctx), s, 100);printf("        =""{%s}\r\n", s);
+	td_string_copy_to_c_string(td_ini_variable(ctx), s, 100);printf("        =""{%s}\r\n", s);
+	td_string_copy_to_c_string(td_ini_value   (ctx), s, 100);printf("        =""{%s}\r\n", s);
 
 
 /*	
 	if (TD_TRUE==td_ini_is_section_variable(ctx, "array", "element"))
 	{
-		td_array_parser_parse(data, array_element, td_ini_value(ctx));
+		td_array_t ctx_array;
+
+		td_array_initialize          (&ctx_array);
+		td_array_set_parameter       (&ctx_array, data);
+		td_array_set_handler_element (&ctx_array, array_element);
+		td_array_parse               (&ctx_array, td_ini_value(ctx)->begin, td_ini_value(ctx)->length);
 	}
 */
 
+	if (TD_TRUE==td_ini_is_section_variable(ctx, "section1", "variable"))
+	{
+		td_string_copy_to_c_string_without_multiline_escape(td_ini_value(ctx), s, 100);
+
+		printf("        :""{%s}\r\n", s);
+	}
+
 	if (TD_TRUE==td_ini_is_section_variable(ctx, "class", "var_i"))
 	{
-		data->var_i = td_string_to_integer(td_ini_value(ctx));
-		printf("%d\r\n", data->var_i);
+		data->var_i = td_string_parse_integer(td_ini_value(ctx));
+		printf("        :""{%d}\r\n", data->var_i);
 	}
 	if (TD_TRUE==td_ini_is_section_variable(ctx, "class", "var_u"))
 	{
-		data->var_u = td_string_to_uinteger(td_ini_value(ctx));
-		printf("%u\r\n", data->var_u);
+		data->var_u = td_string_parse_uinteger(td_ini_value(ctx));
+		printf("        :""{%u}\r\n", data->var_u);
 	}
 	if (TD_TRUE==td_ini_is_section_variable(ctx, "class", "var_f"))
 	{
-		data->var_f = td_string_to_real_number(td_ini_value(ctx));
-		printf("%f\r\n", data->var_f);
+		data->var_f = td_string_parse_real_number(td_ini_value(ctx));
+		printf("        :""{%f}\r\n", data->var_f);
 	}
 	if (TD_TRUE==td_ini_is_section_variable(ctx, "class", "var_ip"))
 	{
-		data->var_ip = td_string_to_ip_v4(td_ini_value(ctx));
-		printf("%x\r\n", data->var_ip);
+		data->var_ip = td_string_parse_ip_v4(td_ini_value(ctx));
+		printf("        :""{%x}\r\n", data->var_ip);
 	}
 	if (TD_TRUE==td_ini_is_section_variable(ctx, "class", "var_s"))
 	{
-//		td_string_trim_double_qutation_expression(td_ini_value(ctx));
+		td_string_trim_dquot(td_ini_value(ctx));
 		td_string_copy_to_c_string(td_ini_value(ctx), data->var_s, 100);
-		printf("%s\r\n", data->var_s);
+		printf("        :""{%s}\r\n", data->var_s);
 	}
 
-
-	if (TD_TRUE==td_ini_is_section_variable(ctx, "ÇÑ±Û", "º¯¼ö"))
+	if (TD_TRUE==td_ini_is_section_variable(ctx, "í•œê¸€", "ë³€ìˆ˜"))
 	{
-//		td_string_trim_double_qutation_expression(td_ini_value(ctx));
+		td_string_trim_dquot(td_ini_value(ctx));
 		td_string_copy_to_c_string(td_ini_value(ctx), data->hangul, 100);
-		printf("%s\r\n", data->hangul);
+		printf("        :""{%s}\r\n", data->hangul);
 	}
 
 
@@ -161,86 +177,34 @@ static void element  (td_ini_t* ctx){printf("element ={");print(td_ini_section (
 void td_ini_test (void)
 {
 	user_data_t data;
-	td_ini_t ctx;
-
+	td_ini_t ctx_ini;
+	td_ini_t* ctx;
 
 	memset(&data      , 0    , sizeof(data));
 	memset(&data.array, 0xFFu, sizeof(data.array));
 
 	
-	td_ini_initialize (&ctx);
-	td_ini_set_parameter        (&ctx, &data   );
-	td_ini_set_handler_line     (&ctx, line    );
-	td_ini_set_handler_comment  (&ctx, comment );
-	td_ini_set_handler_section  (&ctx, section );
-	td_ini_set_handler_variable (&ctx, variable);
-	td_ini_set_handler_value    (&ctx, value   );
-	td_ini_set_handler_element  (&ctx, element );
+	ctx = &ctx_ini;
+	td_ini_initialize (ctx);
+	td_ini_set_parameter        (ctx, &data   );
+#if 1
+	td_ini_set_handler_line     (ctx, line    );
+	td_ini_set_handler_comment  (ctx, comment );
+	td_ini_set_handler_section  (ctx, section );
+	td_ini_set_handler_variable (ctx, variable);
+	td_ini_set_handler_value    (ctx, value   );
+#endif
+	td_ini_set_handler_element  (ctx, element );
 
 
-//	td_ini_parse (&ctx, _text, sizeof(_text)); // +2 ¹ÙÀÌÆ® ´õ µÊ
-	td_ini_parse (&ctx, _text, strlen(_text));
+//	td_ini_parse (ctx, _text, sizeof(_text)); // +2 ë°”ì´íŠ¸ ë¨
+	td_ini_parse (ctx, _text, strlen(_text));
 
-	if (ctx.state != TD_INI_STATE_DONE)
+	if (ctx->state != TD_INI_STATE_DONE)
 	{
-		printf("\r\n[ERROR] = %d \r\n", ctx.state);
+		printf("\r\n[ERROR] = %d \r\n", ctx->state);
 	}
 }
-
-/*
-comment ={; comment}
-section ={section}
-variable={variable}
-value   ={value}
-element ={section}{variable}{value}
-
-section ={class}
-variable={var_i}
-value   ={-12}
-element ={class}{var_i}{-12}
--12
-
-variable={var_u}
-value   ={-12}
-element ={class}{var_u}{-12}
-0
-
-variable={var_f}
-value   ={10.05}
-element ={class}{var_f}{10.05}
-10.050000
-
-variable={var_s}
-value   ={"xxx"}
-element ={class}{var_s}{"xxx"}
-xxx
-
-variable={var_ip}
-value   ={255.0.254.0}
-element ={class}{var_ip}{255.0.254.0}
-ff00fe00
-
-section ={array}
-variable={element}
-value   ={, = 1,(2),a,[], " x "}
-element ={array}{element}{, = 1,(2),a,[], " x "}
-        array[0]={}
-        array[1]={= 1}
-        array[2]={(2)}
-        array[3]={a}
-        array[4]={[]}
-        array[5]={" x "}
-
-section ={ÇÑ±Û}
-variable={º¯¼ö}
-value   ={°ª}
-element ={ÇÑ±Û}{º¯¼ö}{°ª}
-°ª
-
-
-*/
-
-#endif
 
 
 
@@ -254,6 +218,12 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	return 0;
 }
+
+
+
+
+
+#endif
 
 
 

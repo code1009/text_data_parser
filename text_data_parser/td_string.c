@@ -55,32 +55,31 @@ $ 0x24
 \'
 \r
 \n
-\b
 \t
 
 */
 //===========================================================================
 /*
-+-----------------+---------------------+----------------------------------------------------------------------------------------
-| Escape sequence |  Hex Value in ASCII | Character represented
-+-----------------+---------------------+----------------------------------------------------------------------------------------
-| \a              |  07                 | Alert (Beep, Bell) (added in C89)[1]
-| \b              |  08                 | Backspace
-| \f              |  0C                 | Formfeed Page Break
-| \n              |  0A                 | Newline (Line Feed); see notes below
-| \r              |  0D                 | Carriage Return
-| \t              |  09                 | Horizontal Tab
-| \v              |  0B                 | Vertical Tab
-| \\              |  5C                 | Backslash
-| \'              |  27                 | Apostrophe or single quotation mark
-| \"              |  22                 | Double quotation mark
-| \?              |  3F                 | Question mark (used to avoid trigraphs)
-| \e              |  1B                 | Escape character
-| \nnn            |  any                | The byte whose numerical value is given by nnn interpreted as an octal number
-| \xhh…          |  any                | The byte whose numerical value is given by hh… interpreted as a hexadecimal number
-| \uhhhh          |  none               | Unicode code point below 10000 hexadecimal
-| \Uhhhhhhhh      |  none               | Unicode code point where h is a hexadecimal digit
-+-----------------+---------------------+----------------------------------------------------------------------------------------
++-----------------+---------------------+-------------------------------------------------------------------------------------+
+| Escape sequence |  Hex Value in ASCII | Character represented                                                               |
++-----------------+---------------------+-------------------------------------------------------------------------------------+
+| \a              |  07                 | Alert (Beep, Bell) (added in C89)[1]                                                |
+| \b              |  08                 | Backspace                                                                           |
+| \f              |  0C                 | Formfeed Page Break                                                                 |
+| \n              |  0A                 | Newline (Line Feed); see notes below                                                |
+| \r              |  0D                 | Carriage Return                                                                     |
+| \t              |  09                 | Horizontal Tab                                                                      |
+| \v              |  0B                 | Vertical Tab                                                                        |
+| \\              |  5C                 | Backslash                                                                           |
+| \'              |  27                 | Apostrophe or single quotation mark                                                 |
+| \"              |  22                 | Double quotation mark                                                               |
+| \?              |  3F                 | Question mark (used to avoid trigraphs)                                             |
+| \e              |  1B                 | Escape character                                                                    |
+| \nnn            |  any                | The byte whose numerical value is given by nnn interpreted as an octal number       |
+| \xhh            |  any                | The byte whose numerical value is given by hh interpreted as a hexadecimal number   |
+| \uhhhh          |  none               | Unicode code point below 10000 hexadecimal                                          |
+| \Uhhhhhhhh      |  none               | Unicode code point where h is a hexadecimal digit                                   |
++-----------------+---------------------+-------------------------------------------------------------------------------------+
 */
 
 
@@ -91,7 +90,7 @@ $ 0x24
 //===========================================================================
 static td_bool_t td_c_char_compare (td_char_t ch1, td_char_t ch2, td_bool_t case_sensitive)
 {
-	if (TD_TRUE==case_sensitive)
+	if (TD_FALSE==case_sensitive)
 	{
 		if ('a'<=ch1 && ch1<='z')
 		{
@@ -138,23 +137,23 @@ static td_bool_t td_c_char_is_digit (td_char_t ch)
 }
 
 
-static void td_zero_memory (td_pointer_t pointer, td_uint_t size)
+static void td_zero_memory (td_pointer_t dpointer, td_uint_t dsize)
 {
 	td_byte_t* address;
 	td_uint_t  i;
 	td_byte_t  zero;
 
 
-	if (TD_NULL_POINTER==pointer)
+	if (TD_NULL_POINTER==dpointer)
 	{
 		return;
 	}
 
 
-	address = (td_byte_t*)pointer;
+	address = (td_byte_t*)dpointer;
 	zero    = 0u;
 
-	for (i=0u; i<size; i++)
+	for (i=0u; i<dsize; i++)
 	{
 		*address++ = zero;
 	}
@@ -230,15 +229,6 @@ void td_string_set_null (td_string_t* p)
 	p->length = 0u;
 }
 
-/*
-void td_string_shallow_copy (td_string_t* s, td_string_t* d)
-{
-	d->begin  = s->begin ;
-	d->end    = s->end   ;
-	d->length = s->length;
-}
-*/
-
 //===========================================================================
 void td_string_trim (td_string_t* p)
 {
@@ -310,11 +300,11 @@ void td_string_trim (td_string_t* p)
 }
 
 //===========================================================================
-/*
-td_bool_t td_string_is_dquott_expression (td_string_t* p)
+void td_string_trim_dquot (td_string_t* p)
 {
 	td_char_t ch1;
 	td_char_t ch2;
+	td_char_t ch3;
 
 
 	if (2u<=p->length)
@@ -322,35 +312,28 @@ td_bool_t td_string_is_dquott_expression (td_string_t* p)
 		ch1 = *(p->begin);
 		ch2 = *(p->end-1);
 
-		if ( ('\"' == ch1) && ('\"' == ch2) )
+		if (3u<=p->length)
 		{
-			return TD_TRUE;
+			ch3 = *(p->end-2);
+
+			if ( ('\"' == ch1) && ('\"' == ch2) && ('\\' != ch3)  )
+			{
+				p->begin++;
+				p->end--;
+				p->length-=2u;
+			}
 		}
-	}
-
-	return TD_FALSE;
-}
-
-void td_string_trim_double_qutation_expression (td_string_t* p)
-{
-	td_char_t ch1;
-	td_char_t ch2;
-
-
-	if (2u<=p->length)
-	{
-		ch1 = *(p->begin);
-		ch2 = *(p->end-1);
-
-		if ( ('\"' == ch1) && ('\"' == ch2) )
+		else
 		{
-			p->begin++;
-			p->end--;
-			p->length-=2u;
+			if ( ('\"' == ch1) && ('\"' == ch2) )
+			{
+				p->begin++;
+				p->end--;
+				p->length-=2u;
+			}
 		}
 	}
 }
-*/
 
 //===========================================================================
 td_bool_t td_string_compare (td_string_t* p, td_char_t* s, td_bool_t case_sensitive)
@@ -383,14 +366,14 @@ td_bool_t td_string_compare (td_string_t* p, td_char_t* s, td_bool_t case_sensit
 	return TD_TRUE;
 }
 
-td_uint_t td_string_copy_to_c_string (td_string_t* p, td_char_t* pointer, td_uint_t size)
+td_uint_t td_string_copy_to_c_string (td_string_t* p, td_char_t* dpointer, td_uint_t dsize)
 {
-	if (TD_NULL_POINTER==pointer)
+	if (TD_NULL_POINTER==dpointer)
 	{
 		return 0u;
 	}
 
-	if (0u==size)
+	if (0u==dsize)
 	{
 		return 0u;
 	}
@@ -399,14 +382,14 @@ td_uint_t td_string_copy_to_c_string (td_string_t* p, td_char_t* pointer, td_uin
 	td_uint_t i;
 
 
-	for (i=0u; (i<size-1u) && (i<p->length); i++)
+	for (i=0u; (i<dsize-1u) && (i<p->length); i++)
 	{
-		*pointer = *(p->begin+i);
+		*dpointer = *(p->begin+i);
 
-		pointer++;
+		dpointer++;
 	}
 
-	*pointer = 0x00;
+	*dpointer = 0x00;
 
 
 	// NULL 문자 포함 복사 크기 반환
@@ -415,8 +398,102 @@ td_uint_t td_string_copy_to_c_string (td_string_t* p, td_char_t* pointer, td_uin
 }
 
 //===========================================================================
+td_uint_t td_string_copy_to_c_string_without_multiline_escape (td_string_t* p, td_char_t* dpointer, td_uint_t dsize)
+{
+	if (TD_NULL_POINTER==dpointer)
+	{
+		return 0u;
+	}
+
+	if (0u==dsize)
+	{
+		return 0u;
+	}
+
+
+	td_char_t* s;
+	td_char_t  ch;
+
+	td_char_t* s1;
+	td_char_t* s2;
+	td_char_t  ch1;
+	td_char_t  ch2;
+
+	td_uint_t i;
+
+	 
+	i=0u;
+	for (s=p->begin; s!=p->end; s++)
+	{
+		ch = *s;
+
+
+		switch (ch)
+		{
+		case '\\':
+			s1 = s+1;
+			if (s1!=p->end)
+			{
+				ch1=*s1;
+
+				s2 = s1+1;
+				if (s2!=p->end)
+				{
+					ch2=*s2;
+
+					if ( (ch1=='\r') && (ch2=='\n')  )
+					{
+						if (i<dsize-1u) { *dpointer++ = ch1; i++; }
+						if (i<dsize-1u) { *dpointer++ = ch2; i++; }
+						s += 2;
+					}
+					else if (ch1=='\n')
+					{
+						if (i<dsize-1u) { *dpointer++ = ch1; i++; }
+						s += 1;
+					}
+					else
+					{
+						if (i<dsize-1u) { *dpointer++ = ch; i++; }
+					}
+				}
+				else
+				{
+					if ( ch1=='\n' )
+					{
+						if (i<dsize-1u) { *dpointer++ = ch1; i++; }
+						s += 1;
+					}
+					else
+					{
+						if (i<dsize-1u) { *dpointer++ = ch; i++; }
+					}
+				}
+			}
+			else
+			{
+				if (i<dsize-1u) { *dpointer++ = ch; i++; }
+			}
+			break;
+
+		default:
+			if (i<dsize-1u) { *dpointer++ = ch; i++; }
+			break;
+		}
+	}
+
+	*dpointer = 0x00;
+
+
+	// NULL 문자 포함 복사 크기 반환
+
+	return i+1u;
+
+}
+
+//===========================================================================
 // atof
-td_double_t td_string_to_real_number (td_string_t* p)
+td_double_t td_string_parse_real_number (td_string_t* p)
 {
 	td_int_t    sign; 
 	td_double_t value; 
@@ -510,7 +587,7 @@ td_double_t td_string_to_real_number (td_string_t* p)
 }
 
 // atoi
-td_int_t td_string_to_integer (td_string_t* p)
+td_int_t td_string_parse_integer (td_string_t* p)
 {
 	td_int_t sign; 
 	td_int_t value; 
@@ -575,7 +652,7 @@ td_int_t td_string_to_integer (td_string_t* p)
 	return sign * value; 
 }
 
-td_uint_t td_string_to_uinteger (td_string_t* p)
+td_uint_t td_string_parse_uinteger (td_string_t* p)
 {
 	td_uint_t value; 
 
@@ -629,12 +706,12 @@ td_uint_t td_string_to_uinteger (td_string_t* p)
 	return value; 
 }
 
-td_uint_t td_string_to_ip_v4 (td_string_t* p)
+td_uint_t td_string_parse_ip_v4 (td_string_t* p)
 {
-	// ip adddress: "000.000.000.000" 16 bytes
-	td_char_t* address_string;
+	// ip address: "000.000.000.000" 16 bytes
+	td_char_t* string_pointer;
+	td_uint_t  string_length;
 
-	td_uint_t string_length;
 	td_uint_t i;
 	td_uint_t count;
 	td_char_t ch;
@@ -656,9 +733,9 @@ td_uint_t td_string_to_ip_v4 (td_string_t* p)
 	td_zero_memory (address_class_string, sizeof(address_class_string));
 	
 
-	address_string = p->begin;
+	string_pointer = p->begin;
 
-	if (TD_NULL_POINTER!=address_string)
+	if (TD_NULL_POINTER!=string_pointer)
 	{
 		string_length = p->length;
 
@@ -672,7 +749,7 @@ td_uint_t td_string_to_ip_v4 (td_string_t* p)
 					break;
 				}
 
-				ch = *(address_string+i);
+				ch = *(string_pointer+i);
 
 				switch (ch)
 				{
@@ -729,3 +806,7 @@ td_uint_t td_string_to_ip_v4 (td_string_t* p)
 
 	return address;
 }
+
+
+
+
