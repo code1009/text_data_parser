@@ -59,7 +59,53 @@ void td_ini_set_handler_element  (td_ini_t* ctx, td_ini_handler_t handler){ ctx-
 //===========================================================================
 static void td_ini_transition_state (td_ini_t* ctx, td_ini_state_t state)
 {
-	ctx->state = state;
+	if (ctx->state != state)
+	{
+		ctx->parsing_begin = TD_NULL_POINTER;
+		ctx->parsing_end   = TD_NULL_POINTER;
+
+		if (TD_PARSER_STATUS_ERROR!=ctx->status)
+		{
+			if (TD_PARSING_STATE_COMMENT == ctx->parsing_state)
+			{
+				if (ctx->comment_handler)
+				{
+					ctx->comment_handler(ctx);
+				}
+			}
+
+			if (TD_PARSING_STATE_SECTION == ctx->parsing_state)
+			{
+				if (ctx->section_handler)
+				{
+					ctx->section_handler(ctx);
+				}
+			}
+
+			if (TD_PARSING_STATE_VARIABLE == ctx->parsing_state)
+			{
+				if (ctx->variable_handler)
+				{
+					ctx->variable_handler(ctx);
+				}
+			}
+
+			if (TD_PARSING_STATE_VALUE == ctx->parsing_state)
+			{
+				if (ctx->value_handler)
+				{
+					ctx->value_handler(ctx);
+				}
+
+				if (ctx->element_handler)
+				{
+					ctx->element_handler(ctx);
+				}
+			}
+		}
+	}
+
+	ctx->parsing_state = parsing_state;
 }
 
 //===========================================================================
@@ -140,16 +186,8 @@ static void td_ini_state_token_line (td_ini_t* ctx)
 	}
 
 
-	if ( ctx->parsing.begin==ctx->stream.end )
-	{
-		td_ini_transition_state(ctx, TD_INI_STATE_DONE);
-		return;
-	}
-	else
-	{
-		td_ini_transition_state(ctx, TD_INI_STATE_ERROR);
-		return;
-	}
+	td_ini_transition_state(ctx, TD_INI_STATE_ERROR);
+	return;
 }
 
 static void td_ini_state_scan (td_ini_t* ctx)

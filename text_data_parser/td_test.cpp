@@ -131,7 +131,7 @@ static void element  (td_ini_t* ctx){printf("element ={");print(td_ini_section (
 	}
 	if (TD_TRUE==td_ini_is_section_variable(ctx, "class", "var_s"))
 	{
-		td_string_trim_double_qutation_expression(td_ini_value(ctx));
+//		td_string_trim_double_qutation_expression(td_ini_value(ctx));
 		td_string_copy_to_c_string(td_ini_value(ctx), data->var_s, 100);
 		printf("%s\r\n", data->var_s);
 	}
@@ -139,7 +139,7 @@ static void element  (td_ini_t* ctx){printf("element ={");print(td_ini_section (
 
 	if (TD_TRUE==td_ini_is_section_variable(ctx, "한글", "변수"))
 	{
-		td_string_trim_double_qutation_expression(td_ini_value(ctx));
+//		td_string_trim_double_qutation_expression(td_ini_value(ctx));
 		td_string_copy_to_c_string(td_ini_value(ctx), data->hangul, 100);
 		printf("%s\r\n", data->hangul);
 	}
