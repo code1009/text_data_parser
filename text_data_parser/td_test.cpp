@@ -23,6 +23,14 @@ td_char_t _text[]="\
 [section]                         \r\n\
 variable=value                    \r\n\
                                   \r\n\
+[section1]                        \r\n\
+variable=value1                 \\\r\n\
+value2=value3                     \r\n\
+                                  \r\n\
+[\" section2 \\\" 0] \"]          \r\n\
+variable1=value               \\\\\r\n\
+\" variable2= \" = value          \r\n\
+                                  \r\n\
 [class]                           \r\n\
 var_i  = -12                      \r\n\
 var_u  = -12                      \r\n\
@@ -81,6 +89,8 @@ static void array_element (td_array_parser_t* ctx)
 	printf("}\r\n");
 }
 */
+
+static void line     (td_ini_t* ctx){printf("\r\nline    ={");print(td_ini_line    (ctx));printf("}\r\n");}
 
 static void comment  (td_ini_t* ctx){printf("comment ={");print(td_ini_comment (ctx));printf("}\r\n");}
 static void section  (td_ini_t* ctx){printf("section ={");print(td_ini_section (ctx));printf("}\r\n");}
@@ -160,18 +170,20 @@ void td_ini_test (void)
 	
 	td_ini_initialize (&ctx);
 	td_ini_set_parameter        (&ctx, &data   );
-	td_ini_set_handler_element  (&ctx, element );
+	td_ini_set_handler_line     (&ctx, line    );
+	td_ini_set_handler_comment  (&ctx, comment );
 	td_ini_set_handler_section  (&ctx, section );
 	td_ini_set_handler_variable (&ctx, variable);
 	td_ini_set_handler_value    (&ctx, value   );
-	td_ini_set_handler_comment  (&ctx, comment );
+	td_ini_set_handler_element  (&ctx, element );
 
 
-	td_ini_parse (&ctx, _text, sizeof(_text));
+//	td_ini_parse (&ctx, _text, sizeof(_text)); // +2 πŸ¿Ã∆Æ ¥ı µ 
+	td_ini_parse (&ctx, _text, strlen(_text));
 
 	if (ctx.state != TD_INI_STATE_DONE)
 	{
-		printf("\r\n[ERROR] \r\n");
+		printf("\r\n[ERROR] = %d \r\n", ctx.state);
 	}
 }
 

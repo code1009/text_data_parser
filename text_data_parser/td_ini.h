@@ -26,10 +26,11 @@ typedef enum _td_ini_state_t
 	TD_INI_STATE_SCAN           = 1,
 	TD_INI_STATE_DONE           = 2,
 	TD_INI_STATE_TOKEN_LINE     = 3,
-	TD_INI_STATE_TOKEN_COMMENT  = 4,
-	TD_INI_STATE_TOKEN_SECTION  = 5,
-	TD_INI_STATE_TOKEN_VARIABLE = 6,
-	TD_INI_STATE_TOKEN_VALUE    = 7
+	TD_INI_STATE_SCAN_LINE      = 4,
+	TD_INI_STATE_TOKEN_COMMENT  = 5,
+	TD_INI_STATE_TOKEN_SECTION  = 6,
+	TD_INI_STATE_TOKEN_VARIABLE = 7,
+	TD_INI_STATE_TOKEN_VALUE    = 8
 }
 td_ini_state_t;
 
@@ -58,6 +59,7 @@ typedef struct _td_ini_t
 
 
 	td_ini_state_t state;
+	td_char_t*     error_position;
 }
 td_ini_t;
 
@@ -89,6 +91,7 @@ TD_API void td_ini_parse (td_ini_t* ctx, td_pointer_t pointer, td_uint_t size);
 //===========================================================================
 // handler에서 호출
 //===========================================================================
+TD_API td_string_t* td_ini_line    (td_ini_t* ctx);
 TD_API td_string_t* td_ini_comment (td_ini_t* ctx);
 TD_API td_string_t* td_ini_section (td_ini_t* ctx);
 TD_API td_string_t* td_ini_variable(td_ini_t* ctx);
@@ -108,7 +111,7 @@ TD_API td_bool_t td_ini_is_section_variable (td_ini_t* ctx, td_char_t* section, 
 //===========================================================================
 // handler에서 호출
 //===========================================================================
-TD_API void td_ini_set_error (td_ini_t* ctx);
+TD_API void td_ini_set_error (td_ini_t* ctx, td_char_t* position);
 
 
 

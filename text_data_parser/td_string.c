@@ -230,12 +230,14 @@ void td_string_set_null (td_string_t* p)
 	p->length = 0u;
 }
 
-void td_string_shallow_copy (td_string_t* d, td_string_t* s)
+/*
+void td_string_shallow_copy (td_string_t* s, td_string_t* d)
 {
 	d->begin  = s->begin ;
 	d->end    = s->end   ;
 	d->length = s->length;
 }
+*/
 
 //===========================================================================
 void td_string_trim (td_string_t* p)

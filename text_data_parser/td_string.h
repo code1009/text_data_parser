@@ -29,7 +29,8 @@ td_string_t;
 /////////////////////////////////////////////////////////////////////////////
 //===========================================================================
 TD_API void td_string_set_null     (td_string_t* p);
-TD_API void td_string_shallow_copy (td_string_t* s, td_string_t* d);
+
+//TD_API void td_string_shallow_copy (td_string_t* s, td_string_t* d);
 
 TD_API void td_string_trim (td_string_t* p);
 
