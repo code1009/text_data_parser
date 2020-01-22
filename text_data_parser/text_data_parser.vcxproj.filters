@@ -30,10 +30,10 @@
     <ClInclude Include="td.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="td_type.h">
+    <ClInclude Include="td_ini.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="td_ini.h">
+    <ClInclude Include="td_array.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -48,6 +48,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="td_ini.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="td_array.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

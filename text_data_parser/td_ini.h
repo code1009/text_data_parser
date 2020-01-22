@@ -23,8 +23,8 @@ typedef void (*td_ini_handler_t)(struct _td_ini_t* ctx);
 typedef enum _td_ini_state_t
 {
 	TD_INI_STATE_ERROR          = 0,
-	TD_INI_STATE_SCAN           = 1,
-	TD_INI_STATE_DONE           = 2,
+	TD_INI_STATE_DONE           = 1,
+	TD_INI_STATE_SCAN           = 2,
 	TD_INI_STATE_TOKEN_LINE     = 3,
 	TD_INI_STATE_SCAN_LINE      = 4,
 	TD_INI_STATE_TOKEN_COMMENT  = 5,
@@ -59,7 +59,11 @@ typedef struct _td_ini_t
 
 
 	td_ini_state_t state;
-	td_char_t*     error_position;
+
+
+	td_char_t* error_position;
+	td_uint_t  error_line    ;
+	td_uint_t  error_column  ;
 }
 td_ini_t;
 
@@ -113,8 +117,6 @@ TD_API td_bool_t td_ini_is_section_variable (td_ini_t* ctx, td_char_t* section, 
 // handler에서 호출
 //===========================================================================
 TD_API void td_ini_set_error (td_ini_t* ctx, td_char_t* position);
-
-
 
 
 

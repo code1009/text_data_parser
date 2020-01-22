@@ -222,17 +222,54 @@ static td_uint_t td_c_string_to_uinteger (td_char_t* p)
 
 /////////////////////////////////////////////////////////////////////////////
 //===========================================================================
-void td_string_set_null (td_string_t* p)
+td_bool_t td_string_is_null (td_string_t* p)
+{
+	if (p->begin  >= p->end         ) return TD_TRUE;
+	if (p->begin  == TD_NULL_POINTER) return TD_TRUE;
+	if (p->end    == TD_NULL_POINTER) return TD_TRUE;
+	if (p->length == 0u             ) return TD_TRUE;
+
+	return TD_FALSE;
+}
+
+void td_string_null (td_string_t* p)
 {
 	p->begin  = TD_NULL_POINTER;
 	p->end    = TD_NULL_POINTER;
 	p->length = 0u;
 }
 
+void td_string_begin (td_string_t* p, td_char_t* s)
+{
+	p->begin  = s;
+	p->end    = TD_NULL_POINTER;
+	p->length = 0u;
+}
+
+void td_string_end (td_string_t* p, td_char_t* s)
+{
+	if (p->begin!=TD_NULL_POINTER)
+	{
+		if (p->begin < s)
+		{
+			p->end    = s;
+			p->length = p->end - p->begin;
+		}
+	}
+}
+
 //===========================================================================
 void td_string_trim (td_string_t* p)
 {
-	td_char_t ch;
+	td_char_t* s;
+	td_char_t  ch;
+	td_uint_t  parse;
+
+
+	if ( td_string_is_null(p) )
+	{
+		return;
+	}
 
 
 	while(0u<p->length)
@@ -263,11 +300,35 @@ void td_string_trim (td_string_t* p)
 			p->begin++;
 			p->length--;
 		}
+		else if (' ' == ch)
+		{
+
+			p->begin++;
+			p->length--;
+		}
+		else if ('\\' == ch)
+		{
+			s = td_parse_escape_multiline(p->begin, p->end);
+			if (TD_NULL_POINTER!=s)
+			{
+				s++;
+
+				parse = (td_uint_t)(s - p->begin);
+				p->begin  += parse;
+				p->length -= parse;
+			}
+			else
+			{
+				break;
+			}
+		}
 		else
 		{
 			break;
 		}
 	}
+
+	parse = 0u;
 
 	while(0u<p->length)
 	{
@@ -276,21 +337,50 @@ void td_string_trim (td_string_t* p)
 		{
 			p->end--;
 			p->length--;
+
+			parse = 1u;
 		}
 		else if ('\r' == ch)
 		{
 			p->end--;
 			p->length--;
+
+			if ( parse==1u )
+			{
+				parse = 2u;
+			}
+			else
+			{
+				parse = 0u;
+			}
 		}
 		else if ('\t' == ch)
 		{
 			p->end--;
 			p->length--;
+
+			parse = 0u;
 		}
 		else if (' ' == ch)
 		{
 			p->end--;
 			p->length--;
+
+			parse = 0u;
+		}
+		else if ('\\' == ch)
+		{
+			if (parse==1u || parse==2u)
+			{
+				p->end--;
+				p->length--;
+
+				parse = 0;
+			}
+			else
+			{
+				break;
+			}
 		}
 		else
 		{
@@ -300,11 +390,18 @@ void td_string_trim (td_string_t* p)
 }
 
 //===========================================================================
-void td_string_trim_dquot (td_string_t* p)
+void td_string_trim_dquotes (td_string_t* p)
 {
 	td_char_t ch1;
 	td_char_t ch2;
-	td_char_t ch3;
+
+	td_char_t* s;
+
+
+	if ( td_string_is_null(p) )
+	{
+		return;
+	}
 
 
 	if (2u<=p->length)
@@ -312,24 +409,199 @@ void td_string_trim_dquot (td_string_t* p)
 		ch1 = *(p->begin);
 		ch2 = *(p->end-1);
 
-		if (3u<=p->length)
-		{
-			ch3 = *(p->end-2);
 
-			if ( ('\"' == ch1) && ('\"' == ch2) && ('\\' != ch3)  )
+		s = td_parse_token_char (p->begin+1, p->end, '\"');
+		if (TD_NULL_POINTER!=s)
+		{
+			if ((s+1)==p->end)
 			{
-				p->begin++;
-				p->end--;
-				p->length-=2u;
+				if ( ('\"' == ch1) && ('\"' == ch2) )
+				{
+					p->begin++;
+					p->end--;
+					p->length-=2u;
+				}
 			}
 		}
-		else
+	}
+}
+
+void td_string_trim_squotes (td_string_t* p)
+{
+	td_char_t ch1;
+	td_char_t ch2;
+
+	td_char_t* s;
+
+
+	if ( td_string_is_null(p) )
+	{
+		return;
+	}
+
+
+	if (2u<=p->length)
+	{
+		ch1 = *(p->begin);
+		ch2 = *(p->end-1);
+
+
+		s = td_parse_token_char (p->begin+1, p->end, '\'');
+		if (TD_NULL_POINTER!=s)
 		{
-			if ( ('\"' == ch1) && ('\"' == ch2) )
+			if ((s+1)==p->end)
 			{
-				p->begin++;
-				p->end--;
-				p->length-=2u;
+				if ( ('\'' == ch1) && ('\'' == ch2) )
+				{
+					p->begin++;
+					p->end--;
+					p->length-=2u;
+				}
+			}
+		}
+	}
+}
+
+void td_string_trim_round_brackets (td_string_t* p)
+{
+	td_char_t ch1;
+	td_char_t ch2;
+
+	td_char_t* s;
+
+
+
+	if ( td_string_is_null(p) )
+	{
+		return;
+	}
+
+
+	if (2u<=p->length)
+	{
+		ch1 = *(p->begin);
+		ch2 = *(p->end-1);
+
+
+		s = td_parse_token_char (p->begin+1, p->end, ')');
+		if (TD_NULL_POINTER!=s)
+		{
+			if ((s+1)==p->end)
+			{
+				if ( ('(' == ch1) && (')' == ch2) )
+				{
+					p->begin++;
+					p->end--;
+					p->length-=2u;
+				}
+			}
+		}
+	}
+}
+
+void td_string_trim_square_brackets (td_string_t* p)
+{
+	td_char_t ch1;
+	td_char_t ch2;
+
+	td_char_t* s;
+
+
+	if ( td_string_is_null(p) )
+	{
+		return;
+	}
+
+
+	if (2u<=p->length)
+	{
+		ch1 = *(p->begin);
+		ch2 = *(p->end-1);
+
+
+		s = td_parse_token_char (p->begin+1, p->end, ']');
+		if (TD_NULL_POINTER!=s)
+		{
+			if ((s+1)==p->end)
+			{
+				if ( ('[' == ch1) && (']' == ch2) )
+				{
+					p->begin++;
+					p->end--;
+					p->length-=2u;
+				}
+			}
+		}
+	}
+}
+
+void td_string_trim_curly_brackets (td_string_t* p)
+{
+	td_char_t ch1;
+	td_char_t ch2;
+
+	td_char_t* s;
+
+
+	if ( td_string_is_null(p) )
+	{
+		return;
+	}
+
+
+	if (2u<=p->length)
+	{
+		ch1 = *(p->begin);
+		ch2 = *(p->end-1);
+
+
+		s = td_parse_token_char (p->begin+1, p->end, '}');
+		if (TD_NULL_POINTER!=s)
+		{
+			if ((s+1)==p->end)
+			{
+				if ( ('{' == ch1) && ('}' == ch2) )
+				{
+					p->begin++;
+					p->end--;
+					p->length-=2u;
+				}
+			}
+		}
+	}
+}
+
+void td_string_trim_angle_brackets (td_string_t* p)
+{
+	td_char_t ch1;
+	td_char_t ch2;
+
+	td_char_t* s;
+
+
+	if ( td_string_is_null(p) )
+	{
+		return;
+	}
+
+
+	if (2u<=p->length)
+	{
+		ch1 = *(p->begin);
+		ch2 = *(p->end-1);
+
+
+		s = td_parse_token_char (p->begin+1, p->end, '>');
+		if (TD_NULL_POINTER!=s)
+		{
+			if ((s+1)==p->end)
+			{
+				if ( ('<' == ch1) && ('>' == ch2) )
+				{
+					p->begin++;
+					p->end--;
+					p->length-=2u;
+				}
 			}
 		}
 	}
@@ -351,6 +623,11 @@ td_bool_t td_string_compare (td_string_t* p, td_char_t* s, td_bool_t case_sensit
 	{
 		return TD_TRUE;
 	}
+	if ( td_string_is_null(p) )
+	{
+		return TD_FALSE;
+	}
+
 
 	p1 = p->begin;
 	p2 = s;
@@ -368,6 +645,12 @@ td_bool_t td_string_compare (td_string_t* p, td_char_t* s, td_bool_t case_sensit
 
 td_uint_t td_string_copy_to_c_string (td_string_t* p, td_char_t* dpointer, td_uint_t dsize)
 {
+	if ( td_string_is_null(p) )
+	{
+		return 0u;
+	}
+
+
 	if (TD_NULL_POINTER==dpointer)
 	{
 		return 0u;
@@ -398,8 +681,14 @@ td_uint_t td_string_copy_to_c_string (td_string_t* p, td_char_t* dpointer, td_ui
 }
 
 //===========================================================================
-td_uint_t td_string_copy_to_c_string_without_multiline_escape (td_string_t* p, td_char_t* dpointer, td_uint_t dsize)
+td_uint_t td_string_copy_to_c_string_without_escape_multiline (td_string_t* p, td_char_t* dpointer, td_uint_t dsize)
 {
+	if ( td_string_is_null(p) )
+	{
+		return 0u;
+	}
+
+
 	if (TD_NULL_POINTER==dpointer)
 	{
 		return 0u;
@@ -506,7 +795,7 @@ td_double_t td_string_parse_real_number (td_string_t* p)
 
 
 
-	if (0u==p->length)
+	if ( td_string_is_null(p) )
 	{
 		return 0.0;
 	}
@@ -599,7 +888,7 @@ td_int_t td_string_parse_integer (td_string_t* p)
 
 
 
-	if (0u==p->length)
+	if ( td_string_is_null(p) )
 	{
 		return 0;
 	}
@@ -663,7 +952,7 @@ td_uint_t td_string_parse_uinteger (td_string_t* p)
 
 
 
-	if (0u==p->length)
+	if ( td_string_is_null(p) )
 	{
 		return 0u;
 	}
@@ -733,7 +1022,14 @@ td_uint_t td_string_parse_ip_v4 (td_string_t* p)
 	td_zero_memory (address_class_string, sizeof(address_class_string));
 	
 
+	if ( td_string_is_null(p) )
+	{
+		return 0u;
+	}
+
+
 	string_pointer = p->begin;
+
 
 	if (TD_NULL_POINTER!=string_pointer)
 	{
@@ -805,6 +1101,246 @@ td_uint_t td_string_parse_ip_v4 (td_string_t* p)
 	
 
 	return address;
+}
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////
+//===========================================================================
+td_char_t* td_parse_escape_multiline (td_char_t* begin, td_char_t* end)
+ {
+	td_char_t* s;
+	td_char_t  ch;
+
+
+	if (TD_NULL_POINTER==begin)
+	{
+		return TD_NULL_POINTER;
+	}
+	if (TD_NULL_POINTER==end)
+	{
+		return TD_NULL_POINTER;
+	}
+	if (begin>=end)
+	{
+		return TD_NULL_POINTER;
+	}
+
+	
+	s = begin;
+
+
+	ch = *s;
+	if ('\\'!=ch)
+	{
+		return TD_NULL_POINTER;
+	}
+	s++;
+	if (s==end)
+	{
+		return TD_NULL_POINTER;
+	}
+
+
+	ch = *s;
+	if ('\n'==ch)
+	{
+		return s;
+	}
+
+
+	if ('\r'==ch)
+	{
+		s++;
+		if (s!=end)
+		{
+			ch = *s;
+
+			if ('\n'==ch)
+			{
+				return s;
+			}
+		}
+	}
+
+
+	return TD_NULL_POINTER;
+}
+
+td_char_t* td_parse_escape_sequence (td_char_t* begin, td_char_t* end)
+{
+	td_char_t* s;
+	td_char_t  ch;
+
+
+	if (TD_NULL_POINTER==begin)
+	{
+		return TD_NULL_POINTER;
+	}
+	if (TD_NULL_POINTER==end)
+	{
+		return TD_NULL_POINTER;
+	}
+	if (begin>=end)
+	{
+		return TD_NULL_POINTER;
+	}
+
+
+	s = begin;
+
+
+	ch = *s;
+	if (ch!='\\')
+	{
+		return TD_NULL_POINTER;
+	}
+	s++;
+
+
+	for (; s!=end; s++)
+	{
+		ch = *s;
+
+		switch (ch)
+		{
+		case '\r':
+			{
+				return td_parse_escape_multiline(begin, end);
+			}
+			break;
+
+		case '\n':
+			{
+				return td_parse_escape_multiline(begin, end);
+			}
+			break;
+
+		case 'r':
+		case 'n':
+		case 't':
+		case '\'':
+		case '\"':
+			{
+				return s;
+			}
+			break;
+
+		default:
+			{
+				return TD_NULL_POINTER;
+			}
+			break;
+		}
+	}
+
+	return TD_NULL_POINTER;
+}
+
+td_char_t* td_parse_token_char (td_char_t* begin, td_char_t* end, td_char_t token)
+{
+	td_char_t* s;
+	td_char_t  ch;
+
+
+	if (TD_NULL_POINTER==begin)
+	{
+		return TD_NULL_POINTER;
+	}
+	if (TD_NULL_POINTER==end)
+	{
+		return TD_NULL_POINTER;
+	}
+	if (begin>=end)
+	{
+		return TD_NULL_POINTER;
+	}
+
+
+	for (s=begin; s!=end; s++)
+	{
+		ch = *s;
+
+
+		if (token==ch)
+		{
+			return s;
+		}
+
+
+		if (('\''==token) || ('\"'==token) )
+		{
+			switch (ch)
+			{
+			case '\\':
+				s = td_parse_escape_sequence(s, end);
+				if (TD_NULL_POINTER==s)
+				{
+					return TD_NULL_POINTER;
+				}
+				break;
+
+			default:
+				break;
+			}
+		}
+		else
+		{
+			switch (ch)
+			{
+			case '\\':
+				s = td_parse_escape_sequence(s, end);
+				if (TD_NULL_POINTER==s)
+				{
+					return TD_NULL_POINTER;
+				}
+				break;
+
+			case '\'':
+				s=td_parse_token_char(s+1, end, '\'');
+				if (TD_NULL_POINTER==s)
+				{
+					return TD_NULL_POINTER;
+				}
+				break;
+			case '\"':
+				s=td_parse_token_char(s+1, end, '\"');
+				if (TD_NULL_POINTER==s)
+				{
+					return TD_NULL_POINTER;
+				}
+				break;
+			case '(':
+				s=td_parse_token_char(s+1, end, ')');
+				if (TD_NULL_POINTER==s)
+				{
+					return TD_NULL_POINTER;
+				}
+				break;
+			case '{':
+				s=td_parse_token_char(s+1, end, '}');
+				if (TD_NULL_POINTER==s)
+				{
+					return TD_NULL_POINTER;
+				}
+				break;
+			case '[':
+				s=td_parse_token_char(s+1, end, ']');
+				if (TD_NULL_POINTER==s)
+				{
+					return TD_NULL_POINTER;
+				}
+				break;
+
+			default:
+				break;
+			}
+		}
+	}
+
+	return TD_NULL_POINTER;
 }
 
 

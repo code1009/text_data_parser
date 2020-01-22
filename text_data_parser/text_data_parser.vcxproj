@@ -84,12 +84,13 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="td.h" />
+    <ClInclude Include="td_array.h" />
     <ClInclude Include="td_ini.h" />
     <ClInclude Include="td_string.h" />
-    <ClInclude Include="td_type.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="td_array.c" />
     <ClCompile Include="td_ini.c" />
     <ClCompile Include="td_string.c" />
     <ClCompile Include="td_test.cpp" />
