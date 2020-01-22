@@ -23,7 +23,7 @@ static td_char_t _text_data_string[]="\
 variable=value                    \r\n\
 \r\n\
 [section1]                        \r\n\
-ini_variable_handler= value1  , \\\r\n\
+variable = value1  , \\\r\n\
   value2 ,value3    \\\r\n\
 , (value4,value5) , \\\r\n\
 \r\n\
