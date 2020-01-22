@@ -400,8 +400,9 @@ void td_ini_test (void)
 
 
 	pointer = _text_data_string;
-//	size    = sizeof(_text_data_string); // +2 바이트 됨
 	size    = strlen(_text_data_string);
+	printf ("===========================================================================\r\n");
+	printf ("size=%d\r\n", size);
 	printf ("===========================================================================\r\n");
 	printf (_text_data_string);
 	printf ("===========================================================================\r\n");
