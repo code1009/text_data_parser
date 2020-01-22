@@ -36,11 +36,11 @@ typedef struct _td_array_t
 	td_pointer_t parameter;
 
 
-	td_array_handler_t handler_line    ;
+	td_array_handler_t handler_line;
 
-	td_array_handler_t handler_element_value ;
+	td_array_handler_t handler_element_value;
 
-	td_array_handler_t handler_element ;
+	td_array_handler_t handler_element;
 
 
 	td_string_t stream             ;

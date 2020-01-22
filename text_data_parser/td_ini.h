@@ -39,14 +39,14 @@ typedef struct _td_ini_t
 	td_pointer_t parameter;
 
 
-	td_ini_handler_t handler_line    ;
+	td_ini_handler_t handler_line;
 
 	td_ini_handler_t handler_comment ;
 	td_ini_handler_t handler_section ;
 	td_ini_handler_t handler_variable;
 	td_ini_handler_t handler_value   ;
 
-	td_ini_handler_t handler_element ;
+	td_ini_handler_t handler_element;
 
 
 	td_string_t stream        ;
