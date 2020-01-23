@@ -31,10 +31,10 @@ void td_array_initialize (td_array_t* ctx)
 
 
 	//-----------------------------------------------------------------------
-	td_string_null(&ctx->stream             );
-	td_string_null(&ctx->parsing            );
-	td_string_null(&ctx->token_line         );
-	td_string_null(&ctx->token_element_value);
+	td_string_clear(&ctx->stream             );
+	td_string_clear(&ctx->parsing            );
+	td_string_clear(&ctx->token_line         );
+	td_string_clear(&ctx->token_element_value);
 
 
 	//-----------------------------------------------------------------------
@@ -52,25 +52,10 @@ void td_array_initialize (td_array_t* ctx)
 }
 
 //===========================================================================
-td_pointer_t td_array_parameter(td_array_t* ctx)
-{
-	return ctx->parameter;
-}
-
-td_string_t* td_array_line (td_array_t* ctx)
-{
-	return &ctx->token_line;
-}
-
-td_string_t* td_array_element_value (td_array_t* ctx)
-{
-	return &ctx->token_element_value;
-}
-
-td_uint_t td_array_element_index(td_array_t* ctx)
-{
-	return ctx->element_index;
-}
+td_pointer_t td_array_parameter     (td_array_t* ctx){return ctx->parameter           ;}
+td_string_t* td_array_line          (td_array_t* ctx){return &ctx->token_line         ;}
+td_string_t* td_array_element_value (td_array_t* ctx){return &ctx->token_element_value;}
+td_uint_t    td_array_element_index (td_array_t* ctx){return ctx->element_index       ;}
 
 //===========================================================================
 void td_array_set_parameter             (td_array_t* ctx, td_pointer_t parameter)    { ctx->parameter = parameter; };
@@ -149,8 +134,8 @@ static void td_array_state_token_element_value (td_array_t* ctx)
 
 		switch (ch)
 		{
-		case '\r':
 		case '\n':
+		case '\r':
 			{
 				td_array_set_error(ctx, s);
 				return;
@@ -167,14 +152,6 @@ static void td_array_state_token_element_value (td_array_t* ctx)
 				return;
 			}
 			break;
-		case '\'':
-			s = td_parse_token_char (s+1, ctx->token_line.end, '\'');
-			if (TD_NULL_POINTER==s)
-			{
-				td_array_set_error(ctx, ctx->token_element_value.begin);
-				return;
-			}
-			break;
 		case '\"':
 			s = td_parse_token_char (s+1, ctx->token_line.end, '\"');
 			if (TD_NULL_POINTER==s)
@@ -183,8 +160,8 @@ static void td_array_state_token_element_value (td_array_t* ctx)
 				return;
 			}
 			break;
-		case '(':
-			s = td_parse_token_char (s+1, ctx->token_line.end, ')');
+		case '\'':
+			s = td_parse_token_char (s+1, ctx->token_line.end, '\'');
 			if (TD_NULL_POINTER==s)
 			{
 				td_array_set_error(ctx, ctx->token_element_value.begin);
@@ -193,6 +170,14 @@ static void td_array_state_token_element_value (td_array_t* ctx)
 			break;
 		case '{':
 			s = td_parse_token_char (s+1, ctx->token_line.end, '}');
+			if (TD_NULL_POINTER==s)
+			{
+				td_array_set_error(ctx, ctx->token_element_value.begin);
+				return;
+			}
+			break;
+		case '(':
+			s = td_parse_token_char (s+1, ctx->token_line.end, ')');
 			if (TD_NULL_POINTER==s)
 			{
 				td_array_set_error(ctx, ctx->token_element_value.begin);
@@ -287,24 +272,6 @@ static void td_array_state_token_line (td_array_t* ctx)
 
 		switch (ch)
 		{
-		case '\\':
-			if ( TD_FALSE==flag_multiline )
-			{
-				flag_multiline = TD_TRUE;
-			}
-			else
-			{
-				flag_multiline = TD_FALSE;
-			}
-			break;
-
-		case '\r':
-			if (TD_TRUE==flag_multiline)
-			{
-				flag_multiline_cr = TD_TRUE;
-			}
-			break;
-
 		case '\n':
 			if ( (TD_TRUE==flag_multiline    ) &&
 			     (TD_TRUE==flag_multiline_cr )  )
@@ -320,6 +287,24 @@ static void td_array_state_token_line (td_array_t* ctx)
 
 				td_array_transition_state(ctx, TD_ARRAY_STATE_SCAN_LINE);
 				return;
+			}
+			break;
+
+		case '\r':
+			if (TD_TRUE==flag_multiline)
+			{
+				flag_multiline_cr = TD_TRUE;
+			}
+			break;
+
+		case '\\':
+			if ( TD_FALSE==flag_multiline )
+			{
+				flag_multiline = TD_TRUE;
+			}
+			else
+			{
+				flag_multiline = TD_FALSE;
 			}
 			break;
 
@@ -418,7 +403,8 @@ void td_array_parse (td_array_t* ctx, td_pointer_t pointer, td_uint_t size)
 
 
 	//-----------------------------------------------------------------------
-	td_string_null(&ctx->token_element_value);
+	td_string_clear(&ctx->token_line         );
+	td_string_clear(&ctx->token_element_value);
 
 
 	//-----------------------------------------------------------------------
@@ -456,7 +442,7 @@ void td_array_set_error (td_array_t* ctx, td_char_t* position)
 	td_uint_t  line  ;
 
 
-	if (TD_FALSE==td_string_is_null(&ctx->stream))
+	if (TD_FALSE==td_string_empty(&ctx->stream))
 	{
 		if (ctx->stream.begin<=position && position<=ctx->stream.end)
 		{

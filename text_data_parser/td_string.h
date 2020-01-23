@@ -28,21 +28,22 @@ td_string_t;
 
 /////////////////////////////////////////////////////////////////////////////
 //===========================================================================
-TD_API td_bool_t td_string_is_null (td_string_t* p);
-TD_API void      td_string_null    (td_string_t* p);
-TD_API void      td_string_begin   (td_string_t* p, td_char_t* s);
-TD_API void      td_string_end     (td_string_t* p, td_char_t* s);
+TD_API td_bool_t td_string_empty (td_string_t* p);
+TD_API void      td_string_clear (td_string_t* p);
 
-TD_API void td_string_trim                 (td_string_t* p); // ' ', '\r', '\n', '\t'
+TD_API void td_string_begin (td_string_t* p, td_char_t* s);
+TD_API void td_string_end   (td_string_t* p, td_char_t* s);
+
+TD_API void td_string_trim                 (td_string_t* p); // ' ', '\n', '\r', '\t', '\\'
 TD_API void td_string_trim_dquotes         (td_string_t* p); // ""
 TD_API void td_string_trim_squotes         (td_string_t* p); // ''
+TD_API void td_string_trim_curly_brackets  (td_string_t* p); // {}
 TD_API void td_string_trim_round_brackets  (td_string_t* p); // ()
 TD_API void td_string_trim_square_brackets (td_string_t* p); // []
-TD_API void td_string_trim_curly_brackets  (td_string_t* p); // {}
 TD_API void td_string_trim_angle_brackets  (td_string_t* p); // <>
+#define     td_string_trim_braces          td_string_trim_curly_brackets 
 #define     td_string_trim_parentheses     td_string_trim_round_brackets 
 #define     td_string_trim_box_brackets    td_string_trim_square_brackets
-#define     td_string_trim_braces          td_string_trim_curly_brackets 
 
 TD_API td_bool_t td_string_compare (td_string_t* p, td_char_t* s, td_bool_t case_sensitive);
 

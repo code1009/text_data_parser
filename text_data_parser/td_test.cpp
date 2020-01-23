@@ -24,12 +24,12 @@ variable=value                    \r\n\
 \r\n\
 [section1]                        \r\n\
 variable = value1  , \\\r\n\
-  value2 ,value3    \\\r\n\
-, (value4,value5) , \\\r\n\
+  value2 ,value3     \\\r\n\
+, (value4,value5) ,  \\\r\n\
 \r\n\
 [section2]                        \r\n\
 variable1=  value1  \\\\\r\n\
-   \" variable2= \" = value          \r\n\
+   \" variable2= \" = value       \r\n\
 \r\n\
 [\" section3 \\\" 0] \"]          \r\n\
 \r\n\
@@ -156,7 +156,7 @@ static void array_handler_element1 (td_array_t* ctx)
 	element_value = td_array_element_value(ctx);
 
 
-	printf("\t\tARRAY-ELEMENT1[%d]={", element_index);
+	printf("\t[%d]={", element_index);
 	print_td_string (element_value);
 	printf("}\r\n");
 
@@ -186,7 +186,7 @@ static void array_handler_element1 (td_array_t* ctx)
 		td_array_parse (&array, element_value->begin, element_value->length);
 		if (array.state != TD_ARRAY_STATE_DONE)
 		{
-			printf("\r\n[ARRAY-ERROR:LINE=%d,COL%d] = %d \r\n", 
+			printf("\r\n# ARRAY [ERROR LINE:%d COLUMN:%d] = %d \r\n\r\n", 
 				array.error_line,
 				array.error_column,
 				array.state
@@ -217,7 +217,7 @@ static void process_ini_section1 (user_data_t* user_data, td_string_t* variable,
 
 	if (ctx->state != TD_ARRAY_STATE_DONE)
 	{
-		printf("\r\n[ARRAY-ERROR:LINE=%d,COL%d] = %d \r\n", 
+		printf("\r\n# ARRAY [ERROR LINE:%d COLUMN:%d] = %d \r\n\r\n", 
 			ctx->error_line,
 			ctx->error_column,
 			ctx->state
@@ -246,7 +246,7 @@ static void process_ini_section2 (user_data_t* user_data, td_string_t* variable,
 
 	if (ctx->state != TD_ARRAY_STATE_DONE)
 	{
-		printf("\r\n[ARRAY-ERROR:LINE=%d,COL%d] = %d \r\n", 
+		printf("\r\n# ARRAY [ERROR LINE:%d COLUMN:%d] = %d \r\n\r\n", 
 			ctx->error_line,
 			ctx->error_column,
 			ctx->state
@@ -309,7 +309,7 @@ static void process_ini_array (user_data_t* user_data, td_string_t* variable, td
 		td_array_parse (ctx, value->begin, value->length);
 		if (ctx->state != TD_ARRAY_STATE_DONE)
 		{
-			printf("\r\n[ARRAY-ERROR:LINE=%d,COL%d] = %d \r\n", 
+			printf("\r\n# ARRAY [ERROR LINE:%d COLUMN:%d] = %d \r\n\r\n", 
 				ctx->error_line,
 				ctx->error_column,
 				ctx->state
@@ -440,7 +440,7 @@ void td_ini_test (void)
 
 	if (ctx->state != TD_INI_STATE_DONE)
 	{
-		printf("\r\n[INI-ERROR:LINE=%d,COL=%d] = %d \r\n", 
+		printf("\r\n# INI [ERROR LINE:%d COLUMN:%d] = %d \r\n\r\n", 
 			ctx->error_line,
 			ctx->error_column,
 			ctx->state

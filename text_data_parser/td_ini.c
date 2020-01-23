@@ -34,13 +34,13 @@ void td_ini_initialize (td_ini_t* ctx)
 
 
 	//-----------------------------------------------------------------------
-	td_string_null(&ctx->stream        );
-	td_string_null(&ctx->parsing       );
-	td_string_null(&ctx->token_line    );
-	td_string_null(&ctx->token_comment );
-	td_string_null(&ctx->token_section );
-	td_string_null(&ctx->token_variable);
-	td_string_null(&ctx->token_value   );
+	td_string_clear(&ctx->stream        );
+	td_string_clear(&ctx->parsing       );
+	td_string_clear(&ctx->token_line    );
+	td_string_clear(&ctx->token_comment );
+	td_string_clear(&ctx->token_section );
+	td_string_clear(&ctx->token_variable);
+	td_string_clear(&ctx->token_value   );
 
 
 	//-----------------------------------------------------------------------
@@ -54,35 +54,12 @@ void td_ini_initialize (td_ini_t* ctx)
 }
 
 //===========================================================================
-td_pointer_t td_ini_parameter(td_ini_t* ctx)
-{
-	return ctx->parameter;
-}
-
-td_string_t* td_ini_line (td_ini_t* ctx)
-{
-	return &ctx->token_line;
-}
-
-td_string_t* td_ini_comment (td_ini_t* ctx)
-{
-	return &ctx->token_comment;
-}
-
-td_string_t* td_ini_section (td_ini_t* ctx)
-{
-	return &ctx->token_section;
-}
-
-td_string_t* td_ini_variable (td_ini_t* ctx)
-{
-	return &ctx->token_variable;
-}
-
-td_string_t* td_ini_value (td_ini_t* ctx)
-{
-	return &ctx->token_value;
-}
+td_pointer_t td_ini_parameter(td_ini_t* ctx){return  ctx->parameter     ;}
+td_string_t* td_ini_line     (td_ini_t* ctx){return &ctx->token_line    ;}
+td_string_t* td_ini_comment  (td_ini_t* ctx){return &ctx->token_comment ;}
+td_string_t* td_ini_section  (td_ini_t* ctx){return &ctx->token_section ;}
+td_string_t* td_ini_variable (td_ini_t* ctx){return &ctx->token_variable;}
+td_string_t* td_ini_value    (td_ini_t* ctx){return &ctx->token_value   ;}
 
 //===========================================================================
 void td_ini_set_parameter        (td_ini_t* ctx, td_pointer_t parameter)  { ctx->parameter = parameter; };
@@ -266,14 +243,6 @@ static void td_ini_state_token_variable (td_ini_t* ctx)
 				return;
 			}
 			break;
-		case '\'':
-			s = td_parse_token_char (s+1, ctx->token_line.end, '\'');
-			if (TD_NULL_POINTER==s)
-			{
-				td_ini_set_error(ctx, ctx->token_variable.begin);
-				return;
-			}
-			break;
 		case '\"':
 			s = td_parse_token_char (s+1, ctx->token_line.end, '\"');
 			if (TD_NULL_POINTER==s)
@@ -282,8 +251,8 @@ static void td_ini_state_token_variable (td_ini_t* ctx)
 				return;
 			}
 			break;
-		case '(':
-			s = td_parse_token_char (s+1, ctx->token_line.end, ')');
+		case '\'':
+			s = td_parse_token_char (s+1, ctx->token_line.end, '\'');
 			if (TD_NULL_POINTER==s)
 			{
 				td_ini_set_error(ctx, ctx->token_variable.begin);
@@ -292,6 +261,14 @@ static void td_ini_state_token_variable (td_ini_t* ctx)
 			break;
 		case '{':
 			s = td_parse_token_char (s+1, ctx->token_line.end, '}');
+			if (TD_NULL_POINTER==s)
+			{
+				td_ini_set_error(ctx, ctx->token_variable.begin);
+				return;
+			}
+			break;
+		case '(':
+			s = td_parse_token_char (s+1, ctx->token_line.end, ')');
 			if (TD_NULL_POINTER==s)
 			{
 				td_ini_set_error(ctx, ctx->token_variable.begin);
@@ -341,8 +318,8 @@ static void td_ini_state_token_section (td_ini_t* ctx)
 
 		switch (ch)
 		{
-		case '\r':
 		case '\n':
+		case '\r':
 		case '\t':
 			{
 				td_ini_set_error(ctx, s);
@@ -358,14 +335,6 @@ static void td_ini_state_token_section (td_ini_t* ctx)
 				return;
 			}
 			break;
-		case '\'':
-			s = td_parse_token_char (s+1, ctx->token_line.end, '\'');
-			if (TD_NULL_POINTER==s)
-			{
-				td_ini_set_error(ctx, ctx->token_section.begin);
-				return;
-			}
-			break;
 		case '\"':
 			s = td_parse_token_char (s+1, ctx->token_line.end, '\"');
 			if (TD_NULL_POINTER==s)
@@ -374,8 +343,8 @@ static void td_ini_state_token_section (td_ini_t* ctx)
 				return;
 			}
 			break;
-		case '(':
-			s = td_parse_token_char (s+1, ctx->token_line.end, ')');
+		case '\'':
+			s = td_parse_token_char (s+1, ctx->token_line.end, '\'');
 			if (TD_NULL_POINTER==s)
 			{
 				td_ini_set_error(ctx, ctx->token_section.begin);
@@ -384,6 +353,14 @@ static void td_ini_state_token_section (td_ini_t* ctx)
 			break;
 		case '{':
 			s = td_parse_token_char (s+1, ctx->token_line.end, '}');
+			if (TD_NULL_POINTER==s)
+			{
+				td_ini_set_error(ctx, ctx->token_section.begin);
+				return;
+			}
+			break;
+		case '(':
+			s = td_parse_token_char (s+1, ctx->token_line.end, ')');
 			if (TD_NULL_POINTER==s)
 			{
 				td_ini_set_error(ctx, ctx->token_section.begin);
@@ -436,8 +413,8 @@ static void td_ini_state_token_comment (td_ini_t* ctx)
 
 		switch (ch)
 		{
-		case '\r':
 		case '\n':
+		case '\r':
 			{
 				td_ini_set_error(ctx, s);
 				return;
@@ -537,24 +514,6 @@ static void td_ini_state_token_line (td_ini_t* ctx)
 
 		switch (ch)
 		{
-		case '\\':
-			if ( TD_FALSE==flag_multiline )
-			{
-				flag_multiline = TD_TRUE;
-			}
-			else
-			{
-				flag_multiline = TD_FALSE;
-			}
-			break;
-
-		case '\r':
-			if (TD_TRUE==flag_multiline)
-			{
-				flag_multiline_cr = TD_TRUE;
-			}
-			break;
-
 		case '\n':
 			if ( (TD_TRUE==flag_multiline    ) &&
 			     (TD_TRUE==flag_multiline_cr )  )
@@ -573,7 +532,24 @@ static void td_ini_state_token_line (td_ini_t* ctx)
 			}
 			break;
 
-		case '\t':
+		case '\r':
+			if (TD_TRUE==flag_multiline)
+			{
+				flag_multiline_cr = TD_TRUE;
+			}
+			break;
+
+		case '\\':
+			if ( TD_FALSE==flag_multiline )
+			{
+				flag_multiline = TD_TRUE;
+			}
+			else
+			{
+				flag_multiline = TD_FALSE;
+			}
+			break;
+
 		default:
 			flag_multiline    = TD_FALSE;
 			flag_multiline_cr = TD_FALSE;
@@ -676,11 +652,11 @@ void td_ini_parse (td_ini_t* ctx, td_pointer_t pointer, td_uint_t size)
 
 
 	//-----------------------------------------------------------------------
-	td_string_null(&ctx->token_line    );
-	td_string_null(&ctx->token_comment );
-	td_string_null(&ctx->token_section );
-	td_string_null(&ctx->token_variable);
-	td_string_null(&ctx->token_value   );
+	td_string_clear(&ctx->token_line    );
+	td_string_clear(&ctx->token_comment );
+	td_string_clear(&ctx->token_section );
+	td_string_clear(&ctx->token_variable);
+	td_string_clear(&ctx->token_value   );
 
 	
 	//-----------------------------------------------------------------------
@@ -714,7 +690,7 @@ void td_ini_set_error (td_ini_t* ctx, td_char_t* position)
 	td_uint_t  line  ;
 
 
-	if (TD_FALSE==td_string_is_null(&ctx->stream))
+	if (TD_FALSE==td_string_empty(&ctx->stream))
 	{
 		if (ctx->stream.begin<=position && position<=ctx->stream.end)
 		{
