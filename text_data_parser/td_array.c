@@ -127,7 +127,9 @@ static void td_array_state_token_element_value (td_array_t* ctx)
 	td_char_t* s;
 	td_char_t  ch;
 
-	
+	td_char_t* found;
+
+
 	for (s=ctx->token_element_value.begin; s!=ctx->token_line.end; s++)
 	{
 		ch = *s;
@@ -145,11 +147,14 @@ static void td_array_state_token_element_value (td_array_t* ctx)
 			break;
 
 		case '\\':
-			s = td_parse_escape_sequence (s, ctx->token_line.end);
-			if (TD_NULL_POINTER==s)
+			found = td_parse_escape_sequence (s, ctx->token_line.end);
+			if (TD_NULL_POINTER==found)
 			{
-				td_array_set_error(ctx, ctx->token_element_value.begin);
-				return;
+				if ( (s+1)!=ctx->token_line.end )
+				{
+					td_array_set_error(ctx, ctx->token_element_value.begin);
+					return;
+				}
 			}
 			break;
 		case '\"':

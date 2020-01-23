@@ -315,10 +315,17 @@ void td_string_trim (td_string_t* p)
 			if (TD_NULL_POINTER!=s)
 			{
 				s++;
-
-				parse = (td_uint_t)(s - p->begin);
-				p->begin  += parse;
-				p->length -= parse;
+				
+				if (s!=p->end)
+				{
+					parse = (td_uint_t)(s - p->begin);
+					p->begin  += parse;
+					p->length -= parse;
+				}
+				else
+				{
+					break;
+				}
 			}
 			else
 			{
@@ -331,14 +338,19 @@ void td_string_trim (td_string_t* p)
 		}
 	}
 
+/*
+	if (memcmp(p->begin, "value3", 6)==0)
+	{
+		printf("\r\n");
+	}
 
-	td_char_t* last_escape_begin;
-	td_char_t* last_escape_end;
+	td_char_t* escape_multiline_begin;
+	td_char_t* escape_multiline_end;
 	td_char_t* found;
 
 
-	last_escape_begin = TD_NULL_POINTER;
-	last_escape_end   = TD_NULL_POINTER;
+	escape_multiline_first = TD_NULL_POINTER;
+	escape_multiline_last  = TD_NULL_POINTER;
 	for (s=p->begin; s!=p->end; s++)
 	{
 		ch = *s;
@@ -346,26 +358,25 @@ void td_string_trim (td_string_t* p)
 
 		if (ch=='\\')
 		{
-			found = td_parse_escape_sequence(s, p->end);
+			found = td_parse_escape_multiline(s, p->end);
 			if (TD_NULL_POINTER!=found)
 			{
-				last_escape_begin = s;
-				last_escape_end   = found+1;
+				escape_multiline_first = s;
+				escape_multiline_last  = found;
 
 				s = found;
 			}
 		}
 	}
+*/
 
 
+#if 0
 	while(0u<p->length)
 	{
-		if (p->end==last_escape_end)
-		{
-			break;
-		}
+		s = p->end-1;
 
-		ch = *(p->end-1);
+		ch = *s;
 
 		if      ('\n' == ch)
 		{
@@ -397,6 +408,70 @@ void td_string_trim (td_string_t* p)
 			break;
 		}
 	}
+#endif
+
+
+#if 1
+	parse = 0u;
+
+	while(0u<p->length)
+	{
+		ch = *(p->end-1);
+		if      ('\n' == ch)
+		{
+			p->end--;
+			p->length--;
+
+			parse = 1u;
+		}
+		else if ('\r' == ch)
+		{
+			p->end--;
+			p->length--;
+
+			if ( parse==1u )
+			{
+				parse = 2u;
+			}
+			else
+			{
+				parse = 0u;
+			}
+		}
+		else if ('\t' == ch)
+		{
+			p->end--;
+			p->length--;
+
+			parse = 0u;
+		}
+		else if (' ' == ch)
+		{
+			p->end--;
+			p->length--;
+
+			parse = 0u;
+		}
+		else if ('\\' == ch)
+		{
+			if (parse==1u || parse==2u)
+			{
+				p->end--;
+				p->length--;
+
+				parse = 0;
+			}
+			else
+			{
+				break;
+			}
+		}
+		else
+		{
+			break;
+		}
+	}
+#endif
 }
 
 //===========================================================================
@@ -1209,12 +1284,12 @@ td_char_t* td_parse_escape_sequence (td_char_t* begin, td_char_t* end)
 		return TD_NULL_POINTER;
 	}
 
-
+/*
 	if (s+1==end)
 	{
 		return s;
 	}
-
+*/
 
 	s++;	
 	for (; s!=end; s++)
