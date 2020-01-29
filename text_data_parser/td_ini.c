@@ -189,10 +189,10 @@ static void td_ini_transition_state (td_ini_t* ctx, td_ini_state_t state)
 static void td_ini_state_token_value (td_ini_t* ctx)
 {
 	td_char_t* s;
-//	td_char_t  ch;
-
-
 /*
+	td_char_t  ch;
+
+
 	for (s=ctx->token_value.begin; s!=ctx->token_line.end; s++)
 	{
 		ch = *s;

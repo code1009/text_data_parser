@@ -138,11 +138,6 @@ static void td_array_state_token_element_value (td_array_t* ctx)
 		{
 		case '\n':
 		case '\r':
-			{
-				td_array_set_error(ctx, s);
-				return;
-			}
-			break;
 		case '\t':
 			break;
 

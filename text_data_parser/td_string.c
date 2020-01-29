@@ -337,40 +337,7 @@ void td_string_trim (td_string_t* p)
 			break;
 		}
 	}
-
-/*
-	if (memcmp(p->begin, "value3", 6)==0)
-	{
-		printf("\r\n");
-	}
-
-	td_char_t* escape_multiline_begin;
-	td_char_t* escape_multiline_end;
-	td_char_t* found;
-
-
-	escape_multiline_first = TD_NULL_POINTER;
-	escape_multiline_last  = TD_NULL_POINTER;
-	for (s=p->begin; s!=p->end; s++)
-	{
-		ch = *s;
-
-
-		if (ch=='\\')
-		{
-			found = td_parse_escape_multiline(s, p->end);
-			if (TD_NULL_POINTER!=found)
-			{
-				escape_multiline_first = s;
-				escape_multiline_last  = found;
-
-				s = found;
-			}
-		}
-	}
-*/
-
-
+	
 #if 0
 	while(0u<p->length)
 	{
