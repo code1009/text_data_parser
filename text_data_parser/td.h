@@ -35,7 +35,7 @@ typedef unsigned int       td_uint32_t ;
 typedef unsigned int       td_bool_t   ;
 typedef unsigned char      td_byte_t   ;
 //===========================================================================
-typedef char               td_char_t ;
+typedef char               td_char_t   ;
 //===========================================================================
 typedef float              td_float_t  ;
 typedef double             td_double_t ;
