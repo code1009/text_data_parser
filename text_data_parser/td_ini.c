@@ -108,6 +108,7 @@ static void td_ini_handle_comment (td_ini_t* ctx)
 static void td_ini_handle_section (td_ini_t* ctx)
 {
 	td_string_trim(td_ini_section(ctx));
+	td_string_trim_dquotes(td_ini_section(ctx));
 
 
 	if (ctx->handler_section)
@@ -119,6 +120,7 @@ static void td_ini_handle_section (td_ini_t* ctx)
 static void td_ini_handle_variable (td_ini_t* ctx)
 {
 	td_string_trim(td_ini_variable(ctx));
+	td_string_trim_dquotes(td_ini_variable(ctx));
 
 
 	if (ctx->handler_variable)
@@ -130,6 +132,7 @@ static void td_ini_handle_variable (td_ini_t* ctx)
 static void td_ini_handle_value (td_ini_t* ctx)
 {
 	td_string_trim(td_ini_value(ctx));
+	td_string_trim_dquotes(td_ini_value(ctx));
 
 
 	if (ctx->handler_value)
@@ -490,22 +493,6 @@ static void td_ini_state_token_line (td_ini_t* ctx)
 	td_char_t* s;
 	td_char_t  ch;
 
-	td_uint_t flag_multiline;
-	td_uint_t flag_multiline_cr;
-
-	
-	// "\n"
-	// "\r\n"
-
-	// "\\\n"
-	// "\\\r\n"
-
-	// "\\\\\n"   : X
-	// "\\\\\r\n" : X
-
-
-	flag_multiline    = TD_FALSE;
-	flag_multiline_cr = TD_FALSE;
 
 	for (s=ctx->token_line.begin; s!=ctx->stream.end; s++)
 	{
@@ -515,13 +502,6 @@ static void td_ini_state_token_line (td_ini_t* ctx)
 		switch (ch)
 		{
 		case '\n':
-			if ( (TD_TRUE==flag_multiline    ) &&
-			     (TD_TRUE==flag_multiline_cr )  )
-			{
-				flag_multiline    = TD_FALSE;
-				flag_multiline_cr = TD_FALSE;
-			}
-			else
 			{
 				td_string_end(&ctx->parsing, s+1);
 
@@ -533,33 +513,76 @@ static void td_ini_state_token_line (td_ini_t* ctx)
 			break;
 
 		case '\r':
-			if (TD_TRUE==flag_multiline)
-			{
-				flag_multiline_cr = TD_TRUE;
-			}
+			break;
+
+		case '\t':
 			break;
 
 		case '\\':
-			if ( TD_FALSE==flag_multiline )
+			s = td_parse_escape_sequence (s, ctx->stream.end);
+			if (TD_NULL_POINTER==s)
 			{
-				flag_multiline = TD_TRUE;
+				td_ini_set_error(ctx, ctx->token_line.begin);
+				return;
 			}
-			else
+			break;
+		case '\"':
+			s = td_parse_token_char (s+1, ctx->stream.end, '\"');
+			if (TD_NULL_POINTER==s)
 			{
-				flag_multiline = TD_FALSE;
+				td_ini_set_error(ctx, ctx->token_line.begin);
+				return;
+			}
+			break;
+		case '\'':
+			s = td_parse_token_char (s+1, ctx->stream.end, '\'');
+			if (TD_NULL_POINTER==s)
+			{
+				td_ini_set_error(ctx, ctx->token_line.begin);
+				return;
+			}
+			break;
+		case '{':
+			s = td_parse_token_char (s+1, ctx->stream.end, '}');
+			if (TD_NULL_POINTER==s)
+			{
+				td_ini_set_error(ctx, ctx->token_line.begin);
+				return;
+			}
+			break;
+		case '(':
+			s = td_parse_token_char (s+1, ctx->stream.end, ')');
+			if (TD_NULL_POINTER==s)
+			{
+				td_ini_set_error(ctx, ctx->token_line.begin);
+				return;
+			}
+			break;
+
+		case ';':
+			if (ctx->token_line.begin!=s)
+			{
+				td_string_end(&ctx->parsing, s);
+
+				td_string_end(&ctx->token_line, s);
+
+				td_ini_transition_state(ctx, TD_INI_STATE_SCAN_LINE);
+				return;
 			}
 			break;
 
 		default:
-			flag_multiline    = TD_FALSE;
-			flag_multiline_cr = TD_FALSE;
 			break;
 		}
 	}
 
 
 	//-----------------------------------------------------------------------
-	td_ini_set_error(ctx, s);
+	td_string_end(&ctx->parsing, s);
+
+	td_string_end(&ctx->token_line, s);
+
+	td_ini_transition_state(ctx, TD_INI_STATE_SCAN_LINE);
 	return;
 }
 

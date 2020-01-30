@@ -27,27 +27,28 @@ variable = value1  , \\\r\n\
   value2 ,value3     \\\r\n\
 , (value4,value5) ,  \\\r\n\
 \r\n\
-[section2]                        \r\n\
-variable1=  value1  \\\\\r\n\
+[section2] ;comment1              \r\n\
+variable1=  value1  \\\\;comment-a\r\n\
    \" variable2= \" = value       \r\n\
 \r\n\
 [\" section3 \\\" 0] \"]          \r\n\
+[\" section3 \\\" 0] \"]          \r\n\
 \r\n\
-[class]                           \r\n\
-var_i  = -12                      \r\n\
-var_u  = -12                      \r\n\
-var_f  = 10.05                    \r\n\
-var_s  = \"xxx\"                  \r\n\
-var_ip = 255.0.254.0              \r\n\
-var_ip = 255.0.254.1              \r\n\
+[class]              ; comment01  \r\n\
+var_i  = -12         ; comment02  \r\n\
+var_u  = -12         ; comment03  \r\n\
+var_f  = 10.05       ; comment04  \r\n\
+var_s  = \"xxx\"     ; comment05  \r\n\
+var_ip = 255.0.254.0 ; comment06  \r\n\
+var_ip = 255.0.254.1 ; comment07  \r\n\
 \r\n\
 [array]                           \r\n\
-element =  , = 1, (2), a, , [], { \" x, \" }, {1,2,3,4,}, 0,  \r\n\
-element = {, = 1, (2), a, , [], { \" x, \" }, {1,2,3,4,}, 0,} \r\n\
+element =  , = 1, (2), d, , [], { \" x, \" }, {1,2,3,4,}, 0,  \r\n\
+element = {, = 1, (2), d, , [], { \" x, \" }, {1,2,3,4,}, 0,} \r\n\
+element = \"a\", \"b\", c\\\"\r\n\
 \r\n\
 [한글]                            \r\n\
-변수 = 값                         \r\n\
-";
+변수 = 값 \";\"                      ";
 
 
 
@@ -286,7 +287,6 @@ static void process_ini_class (user_data_t* user_data, td_string_t* variable, td
 
 	else if (TD_TRUE==td_string_compare(variable, "var_s", TD_FALSE))
 	{
-		td_string_trim_dquotes(value);
 		td_string_copy_to_c_string(value, user_data->var_s, 100);
 
 		printf(":""{%s}\r\n", user_data->var_s);
@@ -381,7 +381,6 @@ static void ini_handler_element  (td_ini_t* ctx){printf("ELEMENT ={");print_td_s
 
 	if (TD_TRUE==td_ini_is_section_variable(ctx, "한글", "변수"))
 	{
-		td_string_trim_dquotes(value);
 		td_string_copy_to_c_string(value, user_data->hangul, 100);
 
 		printf(":""{%s}\r\n", user_data->hangul);
@@ -401,10 +400,12 @@ void td_ini_test (void)
 
 	pointer = _text_data_string;
 	size    = strlen(_text_data_string);
+	printf ("\r\n");
 	printf ("===========================================================================\r\n");
 	printf ("size=%d\r\n", size);
 	printf ("===========================================================================\r\n");
 	printf (_text_data_string);
+	printf ("\r\n");
 	printf ("===========================================================================\r\n");
 
 
@@ -428,7 +429,7 @@ void td_ini_test (void)
 	td_ini_set_parameter (ctx, &user_data);
 
 //	td_ini_set_handler_line     (ctx, ini_handler_line    );
-//	td_ini_set_handler_comment  (ctx, ini_handler_comment );
+	td_ini_set_handler_comment  (ctx, ini_handler_comment );
 	td_ini_set_handler_section  (ctx, ini_handler_section );
 //	td_ini_set_handler_variable (ctx, ini_handler_variable);
 //	td_ini_set_handler_value    (ctx, ini_handler_value   );
@@ -438,7 +439,7 @@ void td_ini_test (void)
 	td_ini_parse (ctx, pointer, size);
 
 
-	if (ctx->state != TD_INI_STATE_DONE)
+ 	if (ctx->state != TD_INI_STATE_DONE)
 	{
 		printf("\r\n# INI [ERROR LINE:%d COLUMN:%d] = %d \r\n\r\n", 
 			ctx->error_line,

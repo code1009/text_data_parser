@@ -77,6 +77,7 @@ static void td_array_handle_line (td_array_t* ctx)
 static void td_array_handle_element_value (td_array_t* ctx)
 {
 	td_string_trim(td_array_element_value(ctx));
+	td_string_trim_dquotes(td_array_element_value(ctx));
 
 	if (ctx->handler_element_value)
 	{
@@ -150,6 +151,10 @@ static void td_array_state_token_element_value (td_array_t* ctx)
 					td_array_set_error(ctx, ctx->token_element_value.begin);
 					return;
 				}
+			}
+			else
+			{
+				s = found;
 			}
 			break;
 		case '\"':
@@ -258,12 +263,6 @@ static void td_array_state_token_line (td_array_t* ctx)
 	td_char_t* s;
 	td_char_t  ch;
 
-	td_uint_t flag_multiline;
-	td_uint_t flag_multiline_cr;
-
-
-	flag_multiline    = TD_FALSE;
-	flag_multiline_cr = TD_FALSE;
 
 	for (s=ctx->token_line.begin; s!=ctx->stream.end; s++)
 	{
@@ -273,13 +272,6 @@ static void td_array_state_token_line (td_array_t* ctx)
 		switch (ch)
 		{
 		case '\n':
-			if ( (TD_TRUE==flag_multiline    ) &&
-			     (TD_TRUE==flag_multiline_cr )  )
-			{
-				flag_multiline    = TD_FALSE;
-				flag_multiline_cr = TD_FALSE;
-			}
-			else
 			{
 				td_string_end(&ctx->parsing, s+1);
 
@@ -291,26 +283,53 @@ static void td_array_state_token_line (td_array_t* ctx)
 			break;
 
 		case '\r':
-			if (TD_TRUE==flag_multiline)
-			{
-				flag_multiline_cr = TD_TRUE;
-			}
+			break;
+
+		case '\t':
 			break;
 
 		case '\\':
-			if ( TD_FALSE==flag_multiline )
+			s = td_parse_escape_sequence (s, ctx->stream.end);
+			if (TD_NULL_POINTER==s)
 			{
-				flag_multiline = TD_TRUE;
+				td_array_set_error(ctx, ctx->token_line.begin);
+				return;
 			}
-			else
+			break;
+		case '\"':
+			s = td_parse_token_char (s+1, ctx->stream.end, '\"');
+			if (TD_NULL_POINTER==s)
 			{
-				flag_multiline = TD_FALSE;
+				td_array_set_error(ctx, ctx->token_line.begin);
+				return;
+			}
+			break;
+		case '\'':
+			s = td_parse_token_char (s+1, ctx->stream.end, '\'');
+			if (TD_NULL_POINTER==s)
+			{
+				td_array_set_error(ctx, ctx->token_line.begin);
+				return;
+			}
+			break;
+		case '{':
+			s = td_parse_token_char (s+1, ctx->stream.end, '}');
+			if (TD_NULL_POINTER==s)
+			{
+				td_array_set_error(ctx, ctx->token_line.begin);
+				return;
+			}
+			break;
+		case '(':
+			s = td_parse_token_char (s+1, ctx->stream.end, ')');
+			if (TD_NULL_POINTER==s)
+			{
+				td_array_set_error(ctx, ctx->token_line.begin);
+				return;
 			}
 			break;
 
 		default:
-			flag_multiline    = TD_FALSE;
-			flag_multiline_cr = TD_FALSE;
 			break;
 		}
 	}

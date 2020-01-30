@@ -251,7 +251,7 @@ void td_string_end (td_string_t* p, td_char_t* s)
 {
 	if (p->begin!=TD_NULL_POINTER)
 	{
-		if (p->begin < s)
+		if (p->begin <= s)
 		{
 			p->end    = s;
 			p->length = p->end - p->begin;
