@@ -31,8 +31,9 @@ variable = value1  , \\\r\n\
 variable1=  value1  \\\\;comment-a\r\n\
    \" variable2= \" = value       \r\n\
 \r\n\
-[\" section3 \\\" 0] \"]          \r\n\
-[\" section3 \\\" 0] \"]          \r\n\
+[section3]                        \r\n\
+variable3 = value3   ; comment-b  \r\n\
+[\" section4 \\\" 0] \"]          \r\n\
 \r\n\
 [class]              ; comment01  \r\n\
 var_i  = -12         ; comment02  \r\n\
@@ -43,8 +44,8 @@ var_ip = 255.0.254.0 ; comment06  \r\n\
 var_ip = 255.0.254.1 ; comment07  \r\n\
 \r\n\
 [array]                           \r\n\
-element =  , = 1, (2), d, , [], { \" x, \" }, {1,2,3,4,}, 0,  \r\n\
-element = {, = 1, (2), d, , [], { \" x, \" }, {1,2,3,4,}, 0,} \r\n\
+element =  , = 1, (2), d, \"e;\", (;), { \" x, \" }, {1,2,3,4,}, 0,  \r\n\
+element = {, = 1, (2), d, \"e;\", (;), { \" x, \" }, {1,2,3,4,}, 0,} \r\n\
 element = \"a\", \"b\", c\\\"\r\n\
 \r\n\
 [한글]                            \r\n\

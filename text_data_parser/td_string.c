@@ -761,7 +761,7 @@ td_uint_t td_string_copy_to_c_string_without_escape_multiline (td_string_t* p, t
 
 	td_uint_t i;
 
-	 
+
 	i=0u;
 	for (s=p->begin; s!=p->end; s++)
 	{
