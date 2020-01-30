@@ -91,7 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="td_array.cpp" />
+    <ClCompile Include="td_array.c" />
     <ClCompile Include="td_ini.c" />
     <ClCompile Include="td_string.c" />
     <ClCompile Include="td_test.cpp" />
