@@ -237,10 +237,10 @@ static void td_array_state_scan_line (td_array_t* ctx)
 
 	//-----------------------------------------------------------------------
 	td_char_t* s;
-//	td_char_t  ch;
-
-
 /*
+	td_char_t  ch;
+
+
 	for (s=ctx->token_line.begin; s!=ctx->token_line.end; )
 	{
 		ch = *s;
