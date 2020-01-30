@@ -12,12 +12,15 @@
 /////////////////////////////////////////////////////////////////////////////
 //===========================================================================
 #include <stdio.h>
+#include <fcntl.h>  
+#include <io.h>
 #include <string.h>
+#include <tchar.h>
 #include "td.h"
 
 //===========================================================================
 //#pragma execution_character_set("utf-8")
-static td_char_t _text_data_string[]="\
+static td_char_t _text_data_string[]=_T("\
 ; comment                         \r\n\
 [section]                         \r\n\
 variable=value                    \r\n\
@@ -49,7 +52,7 @@ element = {, = 1, (2), d, \"e;\", (;), { \" x, \" }, {1,2,3,4,}, 0,} \r\n\
 element = \"a\", \"b\", c\\\"\r\n\
 \r\n\
 [한글]                            \r\n\
-변수 = 값 \";\"                      ";
+변수 = 값 \";\"                      ");
 
 
 
@@ -60,11 +63,11 @@ typedef struct _user_data_t
 	unsigned int var_u;
 	double       var_f;
 	unsigned int var_ip;
-	char         var_s[100];
+	td_char_t    var_s[100];
 
-	char hangul[100];
+	td_char_t hangul[100];
 
-	char array[20][100];
+	td_char_t array[20][100];
 }
 user_data_t;
 
@@ -81,7 +84,7 @@ static void print_td_string(td_string_t* p)
 	{
 		ch = *(p->begin+i);
 
-		printf("%c", ch);
+		_tprintf(_T("%c"), ch);
 	}
 }
 
@@ -96,9 +99,9 @@ static void array_handler_line (td_array_t* ctx)
 	line = td_array_line(ctx);
 
 
-	printf("\tARRAY-LINE={");
+	_tprintf(_T("\tARRAY-LINE={"));
 	print_td_string (line);
-	printf("}\r\n");
+	_tprintf(_T("}\r\n"));
 }
 
 static void array_handler_element_value (td_array_t* ctx)
@@ -111,9 +114,9 @@ static void array_handler_element_value (td_array_t* ctx)
 	element_value = td_array_element_value(ctx);
 
 
-	printf("\tARRAY-ELEMENT-VALUE[%d]={", element_index);
+	_tprintf(_T("\tARRAY-ELEMENT-VALUE[%d]={"), element_index);
 	print_td_string (element_value);
-	printf("}\r\n");
+	_tprintf(_T("}\r\n"));
 }
 
 static void array_handler_element (td_array_t* ctx)
@@ -126,9 +129,9 @@ static void array_handler_element (td_array_t* ctx)
 	element_value = td_array_element_value(ctx);
 
 
-	printf("\tARRAY-ELEMENT[%d]={", element_index);
+	_tprintf(_T("\tARRAY-ELEMENT[%d]={"), element_index);
 	print_td_string (element_value);
-	printf("}\r\n");
+	_tprintf(_T("}\r\n"));
 }
 
 //===========================================================================
@@ -142,9 +145,9 @@ static void array_handler_element2 (td_array_t* ctx)
 	element_value = td_array_element_value(ctx);
 
 
-	printf("\t\t[%d]={", element_index);
+	_tprintf(_T("\t\t[%d]={"), element_index);
 	print_td_string (element_value);
-	printf("}\r\n");
+	_tprintf(_T("}\r\n"));
 }
 
 static void array_handler_element1 (td_array_t* ctx)
@@ -158,9 +161,9 @@ static void array_handler_element1 (td_array_t* ctx)
 	element_value = td_array_element_value(ctx);
 
 
-	printf("\t[%d]={", element_index);
+	_tprintf(_T("\t[%d]={"), element_index);
 	print_td_string (element_value);
-	printf("}\r\n");
+	_tprintf(_T("}\r\n"));
 
 
 	//--------------------------------------------------------------------------
@@ -188,7 +191,7 @@ static void array_handler_element1 (td_array_t* ctx)
 		td_array_parse (&array, element_value->begin, element_value->length);
 		if (array.state != TD_ARRAY_STATE_DONE)
 		{
-			printf("\r\n# ARRAY [ERROR LINE:%d COLUMN:%d] = %d \r\n\r\n", 
+			_tprintf(_T("\r\n# ARRAY [ERROR LINE:%d COLUMN:%d] = %d \r\n\r\n"), 
 				array.error_line,
 				array.error_column,
 				array.state
@@ -219,7 +222,7 @@ static void process_ini_section1 (user_data_t* user_data, td_string_t* variable,
 
 	if (ctx->state != TD_ARRAY_STATE_DONE)
 	{
-		printf("\r\n# ARRAY [ERROR LINE:%d COLUMN:%d] = %d \r\n\r\n", 
+		_tprintf(_T("\r\n# ARRAY [ERROR LINE:%d COLUMN:%d] = %d \r\n\r\n"), 
 			ctx->error_line,
 			ctx->error_column,
 			ctx->state
@@ -248,7 +251,7 @@ static void process_ini_section2 (user_data_t* user_data, td_string_t* variable,
 
 	if (ctx->state != TD_ARRAY_STATE_DONE)
 	{
-		printf("\r\n# ARRAY [ERROR LINE:%d COLUMN:%d] = %d \r\n\r\n", 
+		_tprintf(_T("\r\n# ARRAY [ERROR LINE:%d COLUMN:%d] = %d \r\n\r\n"), 
 			ctx->error_line,
 			ctx->error_column,
 			ctx->state
@@ -258,45 +261,45 @@ static void process_ini_section2 (user_data_t* user_data, td_string_t* variable,
 
 static void process_ini_class (user_data_t* user_data, td_string_t* variable, td_string_t* value)
 {
-	if (TD_TRUE==td_string_compare(variable, "var_i", TD_FALSE))
+	if (TD_TRUE==td_string_compare(variable, _T("var_i"), TD_FALSE))
 	{
 		user_data->var_i = td_string_parse_integer(value);
 
-		printf(":""{%d}\r\n", user_data->var_i);
+		_tprintf(_T(":{%d}\r\n"), user_data->var_i);
 	}
 
-	else if (TD_TRUE==td_string_compare(variable, "var_u", TD_FALSE))
+	else if (TD_TRUE==td_string_compare(variable, _T("var_u"), TD_FALSE))
 	{
 		user_data->var_u = td_string_parse_uinteger(value);
 
-		printf(":""{%u}\r\n", user_data->var_u);
+		_tprintf(_T(":{%u}\r\n"), user_data->var_u);
 	}
 
-	else if (TD_TRUE==td_string_compare(variable, "var_f", TD_FALSE))
+	else if (TD_TRUE==td_string_compare(variable, _T("var_f"), TD_FALSE))
 	{
 		user_data->var_f = td_string_parse_real_number(value);
 
-		printf(":""{%f}\r\n", user_data->var_f);
+		_tprintf(_T(":{%f}\r\n"), user_data->var_f);
 	}
 
-	else if (TD_TRUE==td_string_compare(variable, "var_ip", TD_FALSE))
+	else if (TD_TRUE==td_string_compare(variable, _T("var_ip"), TD_FALSE))
 	{
 		user_data->var_ip = td_string_parse_ip_v4(value);
 		
-		printf(":""{%x}\r\n", user_data->var_ip);
+		_tprintf(_T(":{%x}\r\n"), user_data->var_ip);
 	}
 
-	else if (TD_TRUE==td_string_compare(variable, "var_s", TD_FALSE))
+	else if (TD_TRUE==td_string_compare(variable, _T("var_s"), TD_FALSE))
 	{
 		td_string_copy_to_c_string(value, user_data->var_s, 100);
 
-		printf(":""{%s}\r\n", user_data->var_s);
+		_tprintf(_T(":{%s}\r\n"), user_data->var_s);
 	}
 }
 
 static void process_ini_array (user_data_t* user_data, td_string_t* variable, td_string_t* value)
 {
-	if (TD_TRUE==td_string_compare(variable, "element", TD_FALSE))
+	if (TD_TRUE==td_string_compare(variable, _T("element"), TD_FALSE))
 	{
 		td_array_t  array;
 		td_array_t* ctx;
@@ -310,7 +313,7 @@ static void process_ini_array (user_data_t* user_data, td_string_t* variable, td
 		td_array_parse (ctx, value->begin, value->length);
 		if (ctx->state != TD_ARRAY_STATE_DONE)
 		{
-			printf("\r\n# ARRAY [ERROR LINE:%d COLUMN:%d] = %d \r\n\r\n", 
+			_tprintf(_T("\r\n# ARRAY [ERROR LINE:%d COLUMN:%d] = %d \r\n\r\n"), 
 				ctx->error_line,
 				ctx->error_column,
 				ctx->state
@@ -320,16 +323,16 @@ static void process_ini_array (user_data_t* user_data, td_string_t* variable, td
 }
 
 //===========================================================================
-static void ini_handler_line     (td_ini_t* ctx){printf("\r\n"
-                                                        "LINE    ={");print_td_string(td_ini_line    (ctx));printf("}\r\n");}
-static void ini_handler_comment  (td_ini_t* ctx){printf("COMMENT ={");print_td_string(td_ini_comment (ctx));printf("}\r\n");}
-static void ini_handler_section  (td_ini_t* ctx){printf("SECTION ={");print_td_string(td_ini_section (ctx));printf("}\r\n");}
-static void ini_handler_variable (td_ini_t* ctx){printf("VARIABLE={");print_td_string(td_ini_variable(ctx));printf("}\r\n");}
-static void ini_handler_value    (td_ini_t* ctx){printf("VALUE   ={");print_td_string(td_ini_value   (ctx));printf("}\r\n");}
+static void ini_handler_line     (td_ini_t* ctx){_tprintf(_T("\r\n")
+                                                          _T("LINE    ={"));print_td_string(td_ini_line    (ctx));_tprintf(_T("}\r\n"));}
+static void ini_handler_comment  (td_ini_t* ctx){_tprintf(_T("COMMENT ={"));print_td_string(td_ini_comment (ctx));_tprintf(_T("}\r\n"));}
+static void ini_handler_section  (td_ini_t* ctx){_tprintf(_T("SECTION ={"));print_td_string(td_ini_section (ctx));_tprintf(_T("}\r\n"));}
+static void ini_handler_variable (td_ini_t* ctx){_tprintf(_T("VARIABLE={"));print_td_string(td_ini_variable(ctx));_tprintf(_T("}\r\n"));}
+static void ini_handler_value    (td_ini_t* ctx){_tprintf(_T("VALUE   ={"));print_td_string(td_ini_value   (ctx));_tprintf(_T("}\r\n"));}
                                             
-static void ini_handler_element  (td_ini_t* ctx){printf("ELEMENT ={");print_td_string(td_ini_section (ctx));printf("}{");
-                                                                      print_td_string(td_ini_variable(ctx));printf("}{");
-                                                                      print_td_string(td_ini_value   (ctx));printf("}\r\n");
+static void ini_handler_element  (td_ini_t* ctx){_tprintf(_T("ELEMENT ={"));print_td_string(td_ini_section (ctx));_tprintf(_T("}{"));
+                                                                            print_td_string(td_ini_variable(ctx));_tprintf(_T("}{"));
+                                                                            print_td_string(td_ini_value   (ctx));_tprintf(_T("}\r\n"));
 	//-----------------------------------------------------------------------
 	user_data_t* user_data;
 
@@ -353,42 +356,42 @@ static void ini_handler_element  (td_ini_t* ctx){printf("ELEMENT ={");print_td_s
 	td_char_t s[100];
 
 
-	td_string_copy_to_c_string(section , s, 100);printf("        =""{%s}\r\n", s);
-	td_string_copy_to_c_string(variable, s, 100);printf("        =""{%s}\r\n", s);
-	td_string_copy_to_c_string(value   , s, 100);printf("        =""{%s}\r\n", s);
+	td_string_copy_to_c_string(section , s, 100);_tprintf(_T("        =""{%s}\r\n"), s);
+	td_string_copy_to_c_string(variable, s, 100);_tprintf(_T("        =""{%s}\r\n"), s);
+	td_string_copy_to_c_string(value   , s, 100);_tprintf(_T("        =""{%s}\r\n"), s);
 #endif
 
 
 	//-----------------------------------------------------------------------
-	if (TD_TRUE==td_ini_is_section(ctx, "section1"))
+	if (TD_TRUE==td_ini_is_section(ctx, _T("section1")))
 	{
 		process_ini_section1(user_data, variable, value);
 	}
 
-	if (TD_TRUE==td_ini_is_section(ctx, "section2"))
+	if (TD_TRUE==td_ini_is_section(ctx, _T("section2")))
 	{
 		process_ini_section2(user_data, variable, value);
 	}
 
-	if (TD_TRUE==td_ini_is_section(ctx, "class"))
+	if (TD_TRUE==td_ini_is_section(ctx, _T("class")))
 	{
 		process_ini_class(user_data, variable, value);
 	}
 
-	if (TD_TRUE==td_ini_is_section(ctx, "array"))
+	if (TD_TRUE==td_ini_is_section(ctx, _T("array")))
 	{
 		process_ini_array(user_data, variable, value);
 	}
 
-	if (TD_TRUE==td_ini_is_section_variable(ctx, "한글", "변수"))
+	if (TD_TRUE==td_ini_is_section_variable(ctx, _T("한글"), _T("변수")))
 	{
 		td_string_copy_to_c_string(value, user_data->hangul, 100);
 
-		printf(":""{%s}\r\n", user_data->hangul);
+		_tprintf(_T(":{%s}\r\n"), user_data->hangul);
 	}
 
 
-	printf ("\r\n");
+	_tprintf (_T("\r\n"));
 }
 
 //===========================================================================
@@ -400,14 +403,14 @@ void td_ini_test (void)
 
 
 	pointer = _text_data_string;
-	size    = strlen(_text_data_string);
-	printf ("\r\n");
-	printf ("===========================================================================\r\n");
-	printf ("size=%d\r\n", size);
-	printf ("===========================================================================\r\n");
-	printf (_text_data_string);
-	printf ("\r\n");
-	printf ("===========================================================================\r\n");
+	size    = _tcslen(_text_data_string);
+	_tprintf (_T("\r\n"));
+	_tprintf (_T("===========================================================================\r\n"));
+	_tprintf (_T("size=%d\r\n"), size);
+	_tprintf (_T("===========================================================================\r\n"));
+	_tprintf (_text_data_string);
+	_tprintf (_T("\r\n"));
+	_tprintf (_T("===========================================================================\r\n"));
 
 
 	//----------------------------------------------------------------------------------------
@@ -442,7 +445,7 @@ void td_ini_test (void)
 
  	if (ctx->state != TD_INI_STATE_DONE)
 	{
-		printf("\r\n# INI [ERROR LINE:%d COLUMN:%d] = %d \r\n\r\n", 
+		_tprintf(_T("\r\n# INI [ERROR LINE:%d COLUMN:%d] = %d \r\n\r\n"), 
 			ctx->error_line,
 			ctx->error_column,
 			ctx->state
@@ -458,6 +461,12 @@ void td_ini_test (void)
 //===========================================================================
 int _tmain(int argc, _TCHAR* argv[])
 {
+#if 0
+	_setmode(_fileno(stdout), _O_U16TEXT);
+	wchar_t* s = L"한";
+	wprintf(L"%ls", s);
+#endif
+
 	td_ini_test();
 
 	return 0;

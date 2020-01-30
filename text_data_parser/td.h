@@ -10,7 +10,7 @@
 **
 ** -------------------------------------------------------------------------
 ** - Date: Jan-30th, 2020.
-** - Version: 1.1.2.6
+** - Version: 1.1.2.8
 ** - array 다중줄 처리 수정 (bugfix)
 ** - ini 다중줄 처리 수정 (bugfix)
 ** - ini 주석 처리 수정 (bugfix)
@@ -35,7 +35,7 @@ typedef unsigned int       td_uint32_t ;
 typedef unsigned int       td_bool_t   ;
 typedef unsigned char      td_byte_t   ;
 //===========================================================================
-typedef char               td_char_t   ;
+typedef char               td_char_t ;
 //===========================================================================
 typedef float              td_float_t  ;
 typedef double             td_double_t ;

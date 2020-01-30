@@ -254,7 +254,7 @@ void td_string_end (td_string_t* p, td_char_t* s)
 		if (p->begin <= s)
 		{
 			p->end    = s;
-			p->length = p->end - p->begin;
+			p->length = (p->end - p->begin);
 		}
 	}
 }
@@ -318,7 +318,7 @@ void td_string_trim (td_string_t* p)
 				
 				if (s!=p->end)
 				{
-					parse = (td_uint_t)(s - p->begin);
+					parse = s - p->begin;
 					p->begin  += parse;
 					p->length -= parse;
 				}
@@ -694,7 +694,7 @@ td_bool_t td_string_compare (td_string_t* p, td_char_t* s, td_bool_t case_sensit
 	return TD_TRUE;
 }
 
-td_uint_t td_string_copy_to_c_string (td_string_t* p, td_char_t* dpointer, td_uint_t dsize)
+td_uint_t td_string_copy_to_c_string (td_string_t* p, td_char_t* dpointer, td_uint_t dlength)
 {
 	if ( td_string_empty(p) )
 	{
@@ -707,7 +707,7 @@ td_uint_t td_string_copy_to_c_string (td_string_t* p, td_char_t* dpointer, td_ui
 		return 0u;
 	}
 
-	if (0u==dsize)
+	if (0u==dlength)
 	{
 		return 0u;
 	}
@@ -716,7 +716,7 @@ td_uint_t td_string_copy_to_c_string (td_string_t* p, td_char_t* dpointer, td_ui
 	td_uint_t i;
 
 
-	for (i=0u; (i<dsize-1u) && (i<p->length); i++)
+	for (i=0u; (i<dlength-1u) && (i<p->length); i++)
 	{
 		*dpointer = *(p->begin+i);
 
@@ -726,13 +726,13 @@ td_uint_t td_string_copy_to_c_string (td_string_t* p, td_char_t* dpointer, td_ui
 	*dpointer = 0x00;
 
 
-	// NULL 문자 포함 복사 크기 반환
+	// NULL 문자 포함 복사 길이 반환
 
 	return i+1u;
 }
 
 //===========================================================================
-td_uint_t td_string_copy_to_c_string_without_escape_multiline (td_string_t* p, td_char_t* dpointer, td_uint_t dsize)
+td_uint_t td_string_copy_to_c_string_without_escape_multiline (td_string_t* p, td_char_t* dpointer, td_uint_t dlength)
 {
 	if ( td_string_empty(p) )
 	{
@@ -745,7 +745,7 @@ td_uint_t td_string_copy_to_c_string_without_escape_multiline (td_string_t* p, t
 		return 0u;
 	}
 
-	if (0u==dsize)
+	if (0u==dlength)
 	{
 		return 0u;
 	}
@@ -783,41 +783,41 @@ td_uint_t td_string_copy_to_c_string_without_escape_multiline (td_string_t* p, t
 
 					if ( (ch1=='\r') && (ch2=='\n')  )
 					{
-						if (i<dsize-1u) { *dpointer++ = ch1; i++; }
-						if (i<dsize-1u) { *dpointer++ = ch2; i++; }
+						if (i<dlength-1u) { *dpointer++ = ch1; i++; }
+						if (i<dlength-1u) { *dpointer++ = ch2; i++; }
 						s += 2;
 					}
 					else if (ch1=='\n')
 					{
-						if (i<dsize-1u) { *dpointer++ = ch1; i++; }
+						if (i<dlength-1u) { *dpointer++ = ch1; i++; }
 						s += 1;
 					}
 					else
 					{
-						if (i<dsize-1u) { *dpointer++ = ch; i++; }
+						if (i<dlength-1u) { *dpointer++ = ch; i++; }
 					}
 				}
 				else
 				{
 					if ( ch1=='\n' )
 					{
-						if (i<dsize-1u) { *dpointer++ = ch1; i++; }
+						if (i<dlength-1u) { *dpointer++ = ch1; i++; }
 						s += 1;
 					}
 					else
 					{
-						if (i<dsize-1u) { *dpointer++ = ch; i++; }
+						if (i<dlength-1u) { *dpointer++ = ch; i++; }
 					}
 				}
 			}
 			else
 			{
-				if (i<dsize-1u) { *dpointer++ = ch; i++; }
+				if (i<dlength-1u) { *dpointer++ = ch; i++; }
 			}
 			break;
 
 		default:
-			if (i<dsize-1u) { *dpointer++ = ch; i++; }
+			if (i<dlength-1u) { *dpointer++ = ch; i++; }
 			break;
 		}
 	}
@@ -825,7 +825,7 @@ td_uint_t td_string_copy_to_c_string_without_escape_multiline (td_string_t* p, t
 	*dpointer = 0x00;
 
 
-	// NULL 문자 포함 복사 크기 반환
+	// NULL 문자 포함 복사 길이 반환
 
 	return i+1u;
 

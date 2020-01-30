@@ -237,9 +237,10 @@ static void td_array_state_scan_line (td_array_t* ctx)
 
 	//-----------------------------------------------------------------------
 	td_char_t* s;
-	td_char_t  ch;
+//	td_char_t  ch;
 
 
+/*
 	for (s=ctx->token_line.begin; s!=ctx->token_line.end; )
 	{
 		ch = *s;
@@ -256,6 +257,16 @@ static void td_array_state_scan_line (td_array_t* ctx)
 			break;
 		}
 	}
+*/
+
+
+	//-----------------------------------------------------------------------
+	s=ctx->token_line.begin;
+
+	td_string_begin(&ctx->token_element_value, s);
+
+	td_array_transition_state(ctx, TD_ARRAY_STATE_TOKEN_ELEMENT_VALUE);
+	return;
 }
 
 static void td_array_state_token_line (td_array_t* ctx)

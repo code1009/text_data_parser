@@ -41,16 +41,16 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="td_string.c">
+    <ClCompile Include="td_test.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="td_test.cpp">
+    <ClCompile Include="td_array.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="td_ini.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="td_array.c">
+    <ClCompile Include="td_string.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
