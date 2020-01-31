@@ -1,6 +1,6 @@
 ﻿/****************************************************************************
 **
-** File: td_string.c
+** File: tdp_string.c
 **
 ** Created by MOON, Eui-kwon.
 ** Created on Jan-10th, 2020.
@@ -13,7 +13,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 //===========================================================================
-#include "td.h"
+#include "tdp.h"
 
 
 
@@ -89,9 +89,9 @@ $ 0x24
 
 /////////////////////////////////////////////////////////////////////////////
 //===========================================================================
-static td_bool_t td_c_char_compare (td_char_t ch1, td_char_t ch2, td_bool_t case_sensitive)
+static tdp_bool_t tdp_c_char_compare (tdp_char_t ch1, tdp_char_t ch2, tdp_bool_t case_sensitive)
 {
-	if (TD_FALSE==case_sensitive)
+	if (TDP_FALSE==case_sensitive)
 	{
 		if ('a'<=ch1 && ch1<='z')
 		{
@@ -103,18 +103,18 @@ static td_bool_t td_c_char_compare (td_char_t ch1, td_char_t ch2, td_bool_t case
 		}
 	}
 
-	return (ch1 == ch2) ? TD_TRUE : TD_FALSE;
+	return (ch1 == ch2) ? TDP_TRUE : TDP_FALSE;
 }
 
 // strlen()
-static td_uint_t td_c_string_length (td_char_t* s)
+static tdp_uint_t tdp_c_string_length (tdp_char_t* s)
 {
-	td_uint_t i;
+	tdp_uint_t i;
 
 
 	i = 0u;
 
-	if (TD_NULL_POINTER != s)
+	if (TDP_NULL_POINTER != s)
 	{
 		while (*s!=0x00)
 		{
@@ -127,31 +127,31 @@ static td_uint_t td_c_string_length (td_char_t* s)
 }
 
 // digit()
-static td_bool_t td_c_char_is_digit (td_char_t ch)
+static tdp_bool_t tdp_c_char_is_digit (tdp_char_t ch)
 {
 	if ('0'<=ch && ch <= '9')
 	{
-		return TD_TRUE;
+		return TDP_TRUE;
 	}
 
-	return TD_FALSE;
+	return TDP_FALSE;
 }
 
 
-static void td_zero_memory (td_pointer_t dpointer, td_uint_t dsize)
+static void tdp_zero_memory (tdp_pointer_t dpointer, tdp_uint_t dsize)
 {
-	td_byte_t* address;
-	td_uint_t  i;
-	td_byte_t  zero;
+	tdp_byte_t* address;
+	tdp_uint_t  i;
+	tdp_byte_t  zero;
 
 
-	if (TD_NULL_POINTER==dpointer)
+	if (TDP_NULL_POINTER==dpointer)
 	{
 		return;
 	}
 
 
-	address = (td_byte_t*)dpointer;
+	address = (tdp_byte_t*)dpointer;
 	zero    = 0u;
 
 	for (i=0u; i<dsize; i++)
@@ -160,20 +160,20 @@ static void td_zero_memory (td_pointer_t dpointer, td_uint_t dsize)
 	}
 }
 
-static td_uint_t td_c_string_to_uinteger (td_char_t* p)
+static tdp_uint_t tdp_c_string_to_uinteger (tdp_char_t* p)
 {
-	td_uint_t length; 
-	td_uint_t i;
+	tdp_uint_t length; 
+	tdp_uint_t i;
 
-	td_uint_t value; 
+	tdp_uint_t value; 
 
-	td_uint_t  state; 
-	td_char_t* s;
-	td_char_t  ch;
-	td_bool_t  loop;
+	tdp_uint_t  state; 
+	tdp_char_t* s;
+	tdp_char_t  ch;
+	tdp_bool_t  loop;
 
 
-	length = td_c_string_length(p);
+	length = tdp_c_string_length(p);
 	if (0u==length)
 	{
 		return 0u;
@@ -184,15 +184,15 @@ static td_uint_t td_c_string_to_uinteger (td_char_t* p)
 
 
 	state = 0u;
-	loop  = TD_TRUE;
-	for (i=0u, s=p; (i<length) && (TD_TRUE==loop); i++)
+	loop  = TDP_TRUE;
+	for (i=0u, s=p; (i<length) && (TDP_TRUE==loop); i++)
 	{
 		ch = *s;
 
 		switch (state)
 		{
 		case 0u: // integer
-			if (td_c_char_is_digit(ch))
+			if (tdp_c_char_is_digit(ch))
 			{
 				value = 10 * value + (ch - '0');
 
@@ -205,7 +205,7 @@ static td_uint_t td_c_string_to_uinteger (td_char_t* p)
 			break;
 
 		case 1u: // end
-			loop = TD_FALSE;
+			loop = TDP_FALSE;
 			break;
 
 		default:
@@ -223,33 +223,33 @@ static td_uint_t td_c_string_to_uinteger (td_char_t* p)
 
 /////////////////////////////////////////////////////////////////////////////
 //===========================================================================
-td_bool_t td_string_empty (td_string_t* p)
+tdp_bool_t tdp_string_empty (tdp_string_t* p)
 {
-	if (p->begin  >= p->end         ) return TD_TRUE;
-	if (p->begin  == TD_NULL_POINTER) return TD_TRUE;
-	if (p->end    == TD_NULL_POINTER) return TD_TRUE;
-	if (p->length == 0u             ) return TD_TRUE;
+	if (p->begin  >= p->end          ) return TDP_TRUE;
+	if (p->begin  == TDP_NULL_POINTER) return TDP_TRUE;
+	if (p->end    == TDP_NULL_POINTER) return TDP_TRUE;
+	if (p->length == 0u              ) return TDP_TRUE;
 
-	return TD_FALSE;
+	return TDP_FALSE;
 }
 
-void td_string_clear (td_string_t* p)
+void tdp_string_clear (tdp_string_t* p)
 {
-	p->begin  = TD_NULL_POINTER;
-	p->end    = TD_NULL_POINTER;
+	p->begin  = TDP_NULL_POINTER;
+	p->end    = TDP_NULL_POINTER;
 	p->length = 0u;
 }
 
-void td_string_begin (td_string_t* p, td_char_t* s)
+void tdp_string_begin (tdp_string_t* p, tdp_char_t* s)
 {
 	p->begin  = s;
-	p->end    = TD_NULL_POINTER;
+	p->end    = TDP_NULL_POINTER;
 	p->length = 0u;
 }
 
-void td_string_end (td_string_t* p, td_char_t* s)
+void tdp_string_end (tdp_string_t* p, tdp_char_t* s)
 {
-	if (p->begin!=TD_NULL_POINTER)
+	if (p->begin!=TDP_NULL_POINTER)
 	{
 		if (p->begin <= s)
 		{
@@ -260,16 +260,16 @@ void td_string_end (td_string_t* p, td_char_t* s)
 }
 
 //===========================================================================
-void td_string_trim (td_string_t* p)
+void tdp_string_trim (tdp_string_t* p)
 {
-	td_char_t* s;
-	td_char_t  ch;
+	tdp_char_t* s;
+	tdp_char_t  ch;
 
-	td_uint_t  parse;
+	tdp_uint_t  parse;
 
 
 
-	if ( td_string_empty(p) )
+	if ( tdp_string_empty(p) )
 	{
 		return;
 	}
@@ -311,8 +311,8 @@ void td_string_trim (td_string_t* p)
 		}
 		else if ('\\' == ch)
 		{
-			s = td_parse_escape_multiline(p->begin, p->end);
-			if (TD_NULL_POINTER!=s)
+			s = tdp_parse_escape_multiline(p->begin, p->end);
+			if (TDP_NULL_POINTER!=s)
 			{
 				s++;
 				
@@ -442,15 +442,15 @@ void td_string_trim (td_string_t* p)
 }
 
 //===========================================================================
-void td_string_trim_dquotes (td_string_t* p)
+void tdp_string_trim_dquotes (tdp_string_t* p)
 {
-	td_char_t ch1;
-	td_char_t ch2;
+	tdp_char_t ch1;
+	tdp_char_t ch2;
 
-	td_char_t* s;
+	tdp_char_t* s;
 
 
-	if ( td_string_empty(p) )
+	if ( tdp_string_empty(p) )
 	{
 		return;
 	}
@@ -462,8 +462,8 @@ void td_string_trim_dquotes (td_string_t* p)
 		ch2 = *(p->end-1);
 
 
-		s = td_parse_token_char (p->begin+1, p->end, '\"');
-		if (TD_NULL_POINTER!=s)
+		s = tdp_parse_token_char (p->begin+1, p->end, '\"');
+		if (TDP_NULL_POINTER!=s)
 		{
 			if ((s+1)==p->end)
 			{
@@ -478,15 +478,15 @@ void td_string_trim_dquotes (td_string_t* p)
 	}
 }
 
-void td_string_trim_squotes (td_string_t* p)
+void tdp_string_trim_squotes (tdp_string_t* p)
 {
-	td_char_t ch1;
-	td_char_t ch2;
+	tdp_char_t ch1;
+	tdp_char_t ch2;
 
-	td_char_t* s;
+	tdp_char_t* s;
 
 
-	if ( td_string_empty(p) )
+	if ( tdp_string_empty(p) )
 	{
 		return;
 	}
@@ -498,8 +498,8 @@ void td_string_trim_squotes (td_string_t* p)
 		ch2 = *(p->end-1);
 
 
-		s = td_parse_token_char (p->begin+1, p->end, '\'');
-		if (TD_NULL_POINTER!=s)
+		s = tdp_parse_token_char (p->begin+1, p->end, '\'');
+		if (TDP_NULL_POINTER!=s)
 		{
 			if ((s+1)==p->end)
 			{
@@ -514,15 +514,15 @@ void td_string_trim_squotes (td_string_t* p)
 	}
 }
 
-void td_string_trim_curly_brackets (td_string_t* p)
+void tdp_string_trim_curly_brackets (tdp_string_t* p)
 {
-	td_char_t ch1;
-	td_char_t ch2;
+	tdp_char_t ch1;
+	tdp_char_t ch2;
 
-	td_char_t* s;
+	tdp_char_t* s;
 
 
-	if ( td_string_empty(p) )
+	if ( tdp_string_empty(p) )
 	{
 		return;
 	}
@@ -534,8 +534,8 @@ void td_string_trim_curly_brackets (td_string_t* p)
 		ch2 = *(p->end-1);
 
 
-		s = td_parse_token_char (p->begin+1, p->end, '}');
-		if (TD_NULL_POINTER!=s)
+		s = tdp_parse_token_char (p->begin+1, p->end, '}');
+		if (TDP_NULL_POINTER!=s)
 		{
 			if ((s+1)==p->end)
 			{
@@ -550,15 +550,15 @@ void td_string_trim_curly_brackets (td_string_t* p)
 	}
 }
 
-void td_string_trim_round_brackets (td_string_t* p)
+void tdp_string_trim_round_brackets (tdp_string_t* p)
 {
-	td_char_t ch1;
-	td_char_t ch2;
+	tdp_char_t ch1;
+	tdp_char_t ch2;
 
-	td_char_t* s;
+	tdp_char_t* s;
 
 	
-	if ( td_string_empty(p) )
+	if ( tdp_string_empty(p) )
 	{
 		return;
 	}
@@ -570,8 +570,8 @@ void td_string_trim_round_brackets (td_string_t* p)
 		ch2 = *(p->end-1);
 
 
-		s = td_parse_token_char (p->begin+1, p->end, ')');
-		if (TD_NULL_POINTER!=s)
+		s = tdp_parse_token_char (p->begin+1, p->end, ')');
+		if (TDP_NULL_POINTER!=s)
 		{
 			if ((s+1)==p->end)
 			{
@@ -586,15 +586,15 @@ void td_string_trim_round_brackets (td_string_t* p)
 	}
 }
 
-void td_string_trim_square_brackets (td_string_t* p)
+void tdp_string_trim_square_brackets (tdp_string_t* p)
 {
-	td_char_t ch1;
-	td_char_t ch2;
+	tdp_char_t ch1;
+	tdp_char_t ch2;
 
-	td_char_t* s;
+	tdp_char_t* s;
 
 
-	if ( td_string_empty(p) )
+	if ( tdp_string_empty(p) )
 	{
 		return;
 	}
@@ -606,8 +606,8 @@ void td_string_trim_square_brackets (td_string_t* p)
 		ch2 = *(p->end-1);
 
 
-		s = td_parse_token_char (p->begin+1, p->end, ']');
-		if (TD_NULL_POINTER!=s)
+		s = tdp_parse_token_char (p->begin+1, p->end, ']');
+		if (TDP_NULL_POINTER!=s)
 		{
 			if ((s+1)==p->end)
 			{
@@ -622,15 +622,15 @@ void td_string_trim_square_brackets (td_string_t* p)
 	}
 }
 
-void td_string_trim_angle_brackets (td_string_t* p)
+void tdp_string_trim_angle_brackets (tdp_string_t* p)
 {
-	td_char_t ch1;
-	td_char_t ch2;
+	tdp_char_t ch1;
+	tdp_char_t ch2;
 
-	td_char_t* s;
+	tdp_char_t* s;
 
 
-	if ( td_string_empty(p) )
+	if ( tdp_string_empty(p) )
 	{
 		return;
 	}
@@ -642,8 +642,8 @@ void td_string_trim_angle_brackets (td_string_t* p)
 		ch2 = *(p->end-1);
 
 
-		s = td_parse_token_char (p->begin+1, p->end, '>');
-		if (TD_NULL_POINTER!=s)
+		s = tdp_parse_token_char (p->begin+1, p->end, '>');
+		if (TDP_NULL_POINTER!=s)
 		{
 			if ((s+1)==p->end)
 			{
@@ -659,24 +659,24 @@ void td_string_trim_angle_brackets (td_string_t* p)
 }
 
 //===========================================================================
-td_bool_t td_string_compare (td_string_t* p, td_char_t* s, td_bool_t case_sensitive)
+tdp_bool_t tdp_string_compare (tdp_string_t* p, tdp_char_t* s, tdp_bool_t case_sensitive)
 {
-	td_char_t* p1;
-	td_char_t* p2;
-	td_uint_t  i;
+	tdp_char_t* p1;
+	tdp_char_t* p2;
+	tdp_uint_t  i;
 
 
-	if (p->length != td_c_string_length(s))
+	if (p->length != tdp_c_string_length(s))
 	{
-		return TD_FALSE;
+		return TDP_FALSE;
 	}
 	if (0u == p->length)
 	{
-		return TD_TRUE;
+		return TDP_TRUE;
 	}
-	if ( td_string_empty(p) )
+	if ( tdp_string_empty(p) )
 	{
-		return TD_FALSE;
+		return TDP_FALSE;
 	}
 
 
@@ -685,24 +685,24 @@ td_bool_t td_string_compare (td_string_t* p, td_char_t* s, td_bool_t case_sensit
 
 	for (i=0u; i<p->length; i++)
 	{
-		if (TD_FALSE==td_c_char_compare(*p1++, *p2++, case_sensitive))
+		if (TDP_FALSE==tdp_c_char_compare(*p1++, *p2++, case_sensitive))
 		{
-			return TD_FALSE;
+			return TDP_FALSE;
 		}
 	}
 
-	return TD_TRUE;
+	return TDP_TRUE;
 }
 
-td_uint_t td_string_copy_to_c_string (td_string_t* p, td_char_t* dpointer, td_uint_t dlength)
+tdp_uint_t tdp_string_copy_to_c_string (tdp_string_t* p, tdp_char_t* dpointer, tdp_uint_t dlength)
 {
-	if ( td_string_empty(p) )
+	if ( tdp_string_empty(p) )
 	{
 		return 0u;
 	}
 
 
-	if (TD_NULL_POINTER==dpointer)
+	if (TDP_NULL_POINTER==dpointer)
 	{
 		return 0u;
 	}
@@ -713,7 +713,7 @@ td_uint_t td_string_copy_to_c_string (td_string_t* p, td_char_t* dpointer, td_ui
 	}
 
 
-	td_uint_t i;
+	tdp_uint_t i;
 
 
 	for (i=0u; (i<dlength-1u) && (i<p->length); i++)
@@ -732,15 +732,15 @@ td_uint_t td_string_copy_to_c_string (td_string_t* p, td_char_t* dpointer, td_ui
 }
 
 //===========================================================================
-td_uint_t td_string_copy_to_c_string_without_escape_multiline (td_string_t* p, td_char_t* dpointer, td_uint_t dlength)
+tdp_uint_t tdp_string_copy_to_c_string_without_escape_multiline (tdp_string_t* p, tdp_char_t* dpointer, tdp_uint_t dlength)
 {
-	if ( td_string_empty(p) )
+	if ( tdp_string_empty(p) )
 	{
 		return 0u;
 	}
 
 
-	if (TD_NULL_POINTER==dpointer)
+	if (TDP_NULL_POINTER==dpointer)
 	{
 		return 0u;
 	}
@@ -751,15 +751,15 @@ td_uint_t td_string_copy_to_c_string_without_escape_multiline (td_string_t* p, t
 	}
 
 
-	td_char_t* s;
-	td_char_t  ch;
+	tdp_char_t* s;
+	tdp_char_t  ch;
 
-	td_char_t* s1;
-	td_char_t* s2;
-	td_char_t  ch1;
-	td_char_t  ch2;
+	tdp_char_t* s1;
+	tdp_char_t* s2;
+	tdp_char_t  ch1;
+	tdp_char_t  ch2;
 
-	td_uint_t i;
+	tdp_uint_t i;
 
 
 	i=0u;
@@ -833,20 +833,20 @@ td_uint_t td_string_copy_to_c_string_without_escape_multiline (td_string_t* p, t
 
 //===========================================================================
 // atof
-td_double_t td_string_parse_real_number (td_string_t* p)
+tdp_double_t tdp_string_parse_real_number (tdp_string_t* p)
 {
-	td_int_t    sign; 
-	td_double_t value; 
-	td_double_t power;
+	tdp_int_t    sign; 
+	tdp_double_t value; 
+	tdp_double_t power;
 
-	td_uint_t  state; 
-	td_char_t* s;
-	td_char_t  ch;
-	td_bool_t  loop;
+	tdp_uint_t  state; 
+	tdp_char_t* s;
+	tdp_char_t  ch;
+	tdp_bool_t  loop;
 
 
 
-	if ( td_string_empty(p) )
+	if ( tdp_string_empty(p) )
 	{
 		return 0.0;
 	}
@@ -858,8 +858,8 @@ td_double_t td_string_parse_real_number (td_string_t* p)
 
 
 	state = 0u;
-	loop  = TD_TRUE;
-	for (s=p->begin; (s!=p->end) && (TD_TRUE==loop); )
+	loop  = TDP_TRUE;
+	for (s=p->begin; (s!=p->end) && (TDP_TRUE==loop); )
 	{
 		ch = *s;
 
@@ -875,7 +875,7 @@ td_double_t td_string_parse_real_number (td_string_t* p)
 			break;
 
 		case 1u: // integer
-			if (td_c_char_is_digit(ch))
+			if (tdp_c_char_is_digit(ch))
 			{
 				value = 10.0 * value + (ch - '0');
 
@@ -901,7 +901,7 @@ td_double_t td_string_parse_real_number (td_string_t* p)
 			break;
 
 		case 3u: // fractional
-			if (td_c_char_is_digit(ch))
+			if (tdp_c_char_is_digit(ch))
 			{
 				value = 10.0 * value + (ch - '0');
 				power = power*10.0;
@@ -914,7 +914,7 @@ td_double_t td_string_parse_real_number (td_string_t* p)
 			break;
 
 		case 4u: // end
-			loop = TD_FALSE;
+			loop = TDP_FALSE;
 			break;
 
 		default:
@@ -927,19 +927,19 @@ td_double_t td_string_parse_real_number (td_string_t* p)
 }
 
 // atoi
-td_int_t td_string_parse_integer (td_string_t* p)
+tdp_int_t tdp_string_parse_integer (tdp_string_t* p)
 {
-	td_int_t sign; 
-	td_int_t value; 
+	tdp_int_t sign; 
+	tdp_int_t value; 
 
-	td_uint_t  state; 
-	td_char_t* s;
-	td_char_t  ch;
-	td_bool_t  loop;
+	tdp_uint_t  state; 
+	tdp_char_t* s;
+	tdp_char_t  ch;
+	tdp_bool_t  loop;
 
 
 
-	if ( td_string_empty(p) )
+	if ( tdp_string_empty(p) )
 	{
 		return 0;
 	}
@@ -950,8 +950,8 @@ td_int_t td_string_parse_integer (td_string_t* p)
 
 
 	state = 0u;
-	loop  = TD_TRUE;
-	for (s=p->begin; (s!=p->end) && (TD_TRUE==loop); )
+	loop  = TDP_TRUE;
+	for (s=p->begin; (s!=p->end) && (TDP_TRUE==loop); )
 	{
 		ch = *s;
 
@@ -967,7 +967,7 @@ td_int_t td_string_parse_integer (td_string_t* p)
 			break;
 
 		case 1u: // integer
-			if (td_c_char_is_digit(ch))
+			if (tdp_c_char_is_digit(ch))
 			{
 				value = 10 * value + (ch - '0');
 
@@ -980,7 +980,7 @@ td_int_t td_string_parse_integer (td_string_t* p)
 			break;
 
 		case 2u: // end
-			loop = TD_FALSE;
+			loop = TDP_FALSE;
 			break;
 
 		default:
@@ -992,18 +992,18 @@ td_int_t td_string_parse_integer (td_string_t* p)
 	return sign * value; 
 }
 
-td_uint_t td_string_parse_uinteger (td_string_t* p)
+tdp_uint_t tdp_string_parse_uinteger (tdp_string_t* p)
 {
-	td_uint_t value; 
+	tdp_uint_t value; 
 
-	td_uint_t  state; 
-	td_char_t* s;
-	td_char_t  ch;
-	td_bool_t  loop;
+	tdp_uint_t  state; 
+	tdp_char_t* s;
+	tdp_char_t  ch;
+	tdp_bool_t  loop;
 
 
 
-	if ( td_string_empty(p) )
+	if ( tdp_string_empty(p) )
 	{
 		return 0u;
 	}
@@ -1013,15 +1013,15 @@ td_uint_t td_string_parse_uinteger (td_string_t* p)
 
 
 	state = 0u;
-	loop  = TD_TRUE;
-	for (s=p->begin; (s!=p->end) && (TD_TRUE==loop); )
+	loop  = TDP_TRUE;
+	for (s=p->begin; (s!=p->end) && (TDP_TRUE==loop); )
 	{
 		ch = *s;
 
 		switch (state)
 		{
 		case 0u: // integer
-			if (td_c_char_is_digit(ch))
+			if (tdp_c_char_is_digit(ch))
 			{
 				value = 10 * value + (ch - '0');
 
@@ -1034,7 +1034,7 @@ td_uint_t td_string_parse_uinteger (td_string_t* p)
 			break;
 
 		case 1u: // end
-			loop = TD_FALSE;
+			loop = TDP_FALSE;
 			break;
 
 		default:
@@ -1046,35 +1046,35 @@ td_uint_t td_string_parse_uinteger (td_string_t* p)
 	return value; 
 }
 
-td_uint_t td_string_parse_ip_v4 (td_string_t* p)
+tdp_uint_t tdp_string_parse_ip_v4 (tdp_string_t* p)
 {
 	// ip address: "000.000.000.000" 16 bytes
-	td_char_t* string_pointer;
-	td_uint_t  string_length;
+	tdp_char_t* string_pointer;
+	tdp_uint_t  string_length;
 
-	td_uint_t i;
-	td_uint_t count;
-	td_char_t ch;
+	tdp_uint_t i;
+	tdp_uint_t count;
+	tdp_char_t ch;
 
-	td_uint_t offset;
-	td_bool_t validate;
+	tdp_uint_t offset;
+	tdp_bool_t validate;
 
-	td_uint_t address;
-	td_uint_t address_class_index;
-	td_byte_t address_class[4];
-	td_char_t address_class_string[4][32];
+	tdp_uint_t address;
+	tdp_uint_t address_class_index;
+	tdp_byte_t address_class[4];
+	tdp_char_t address_class_string[4][32];
 
 
 	offset   = 0u;
-	validate = TD_TRUE;
+	validate = TDP_TRUE;
 
 	address = 0u;
 	address_class_index = 0u;
-	td_zero_memory (address_class,        sizeof(address_class));
-	td_zero_memory (address_class_string, sizeof(address_class_string));
+	tdp_zero_memory (address_class,        sizeof(address_class));
+	tdp_zero_memory (address_class_string, sizeof(address_class_string));
 	
 
-	if ( td_string_empty(p) )
+	if ( tdp_string_empty(p) )
 	{
 		return 0u;
 	}
@@ -1083,7 +1083,7 @@ td_uint_t td_string_parse_ip_v4 (td_string_t* p)
 	string_pointer = p->begin;
 
 
-	if (TD_NULL_POINTER!=string_pointer)
+	if (TDP_NULL_POINTER!=string_pointer)
 	{
 		string_length = p->length;
 
@@ -1092,7 +1092,7 @@ td_uint_t td_string_parse_ip_v4 (td_string_t* p)
 			count = string_length;
 			for (i=0u; i<count;i++)
 			{
-				if (TD_FALSE==validate)
+				if (TDP_FALSE==validate)
 				{
 					break;
 				}
@@ -1115,7 +1115,7 @@ td_uint_t td_string_parse_ip_v4 (td_string_t* p)
 					offset++;
 					if (3u<offset)
 					{
-						validate = TD_FALSE; 
+						validate = TDP_FALSE; 
 					}
 					break;
 
@@ -1124,22 +1124,22 @@ td_uint_t td_string_parse_ip_v4 (td_string_t* p)
 					address_class_index++;
 					if ( 4u <= address_class_index )
 					{
-						validate = TD_FALSE; 
+						validate = TDP_FALSE; 
 					}
 					break;
 
 				default:
-					validate = TD_FALSE; 
+					validate = TDP_FALSE; 
 					break;
 				}
 			}
 
-			if ( TD_TRUE==validate )
+			if ( TDP_TRUE==validate )
 			{
 				count = 4u;
 				for (i=0u; i<count;i++)
 				{
-					address_class[i] = td_c_string_to_uinteger( address_class_string[i] );
+					address_class[i] = tdp_c_string_to_uinteger( address_class_string[i] );
 				}
 			}
 		}
@@ -1162,23 +1162,23 @@ td_uint_t td_string_parse_ip_v4 (td_string_t* p)
 
 /////////////////////////////////////////////////////////////////////////////
 //===========================================================================
-td_char_t* td_parse_escape_multiline (td_char_t* begin, td_char_t* end)
+tdp_char_t* tdp_parse_escape_multiline (tdp_char_t* begin, tdp_char_t* end)
  {
-	td_char_t* s;
-	td_char_t  ch;
+	tdp_char_t* s;
+	tdp_char_t  ch;
 
 
-	if (TD_NULL_POINTER==begin)
+	if (TDP_NULL_POINTER==begin)
 	{
-		return TD_NULL_POINTER;
+		return TDP_NULL_POINTER;
 	}
-	if (TD_NULL_POINTER==end)
+	if (TDP_NULL_POINTER==end)
 	{
-		return TD_NULL_POINTER;
+		return TDP_NULL_POINTER;
 	}
 	if (begin>=end)
 	{
-		return TD_NULL_POINTER;
+		return TDP_NULL_POINTER;
 	}
 
 	
@@ -1188,12 +1188,12 @@ td_char_t* td_parse_escape_multiline (td_char_t* begin, td_char_t* end)
 	ch = *s;
 	if ('\\'!=ch)
 	{
-		return TD_NULL_POINTER;
+		return TDP_NULL_POINTER;
 	}
 	s++;
 	if (s==end)
 	{
-		return TD_NULL_POINTER;
+		return TDP_NULL_POINTER;
 	}
 
 
@@ -1219,26 +1219,26 @@ td_char_t* td_parse_escape_multiline (td_char_t* begin, td_char_t* end)
 	}
 
 
-	return TD_NULL_POINTER;
+	return TDP_NULL_POINTER;
 }
 
-td_char_t* td_parse_escape_sequence (td_char_t* begin, td_char_t* end)
+tdp_char_t* tdp_parse_escape_sequence (tdp_char_t* begin, tdp_char_t* end)
 {
-	td_char_t* s;
-	td_char_t  ch;
+	tdp_char_t* s;
+	tdp_char_t  ch;
 
 
-	if (TD_NULL_POINTER==begin)
+	if (TDP_NULL_POINTER==begin)
 	{
-		return TD_NULL_POINTER;
+		return TDP_NULL_POINTER;
 	}
-	if (TD_NULL_POINTER==end)
+	if (TDP_NULL_POINTER==end)
 	{
-		return TD_NULL_POINTER;
+		return TDP_NULL_POINTER;
 	}
 	if (begin>=end)
 	{
-		return TD_NULL_POINTER;
+		return TDP_NULL_POINTER;
 	}
 
 
@@ -1248,7 +1248,7 @@ td_char_t* td_parse_escape_sequence (td_char_t* begin, td_char_t* end)
 	ch = *s;
 	if (ch!='\\')
 	{
-		return TD_NULL_POINTER;
+		return TDP_NULL_POINTER;
 	}
 
 /*
@@ -1267,12 +1267,12 @@ td_char_t* td_parse_escape_sequence (td_char_t* begin, td_char_t* end)
 		{
 		case '\n':
 			{
-				return td_parse_escape_multiline(begin, end);
+				return tdp_parse_escape_multiline(begin, end);
 			}
 			break;
 		case '\r':
 			{
-				return td_parse_escape_multiline(begin, end);
+				return tdp_parse_escape_multiline(begin, end);
 			}
 			break;
 
@@ -1299,33 +1299,33 @@ td_char_t* td_parse_escape_sequence (td_char_t* begin, td_char_t* end)
 
 		default:
 			{
-				return TD_NULL_POINTER;
+				return TDP_NULL_POINTER;
 			}
 			break;
 		}
 	}
 
 
-	return TD_NULL_POINTER;
+	return TDP_NULL_POINTER;
 }
 
-td_char_t* td_parse_token_char (td_char_t* begin, td_char_t* end, td_char_t token)
+tdp_char_t* tdp_parse_token_char (tdp_char_t* begin, tdp_char_t* end, tdp_char_t token)
 {
-	td_char_t* s;
-	td_char_t  ch;
+	tdp_char_t* s;
+	tdp_char_t  ch;
 
 
-	if (TD_NULL_POINTER==begin)
+	if (TDP_NULL_POINTER==begin)
 	{
-		return TD_NULL_POINTER;
+		return TDP_NULL_POINTER;
 	}
-	if (TD_NULL_POINTER==end)
+	if (TDP_NULL_POINTER==end)
 	{
-		return TD_NULL_POINTER;
+		return TDP_NULL_POINTER;
 	}
 	if (begin>=end)
 	{
-		return TD_NULL_POINTER;
+		return TDP_NULL_POINTER;
 	}
 
 
@@ -1345,10 +1345,10 @@ td_char_t* td_parse_token_char (td_char_t* begin, td_char_t* end, td_char_t toke
 			switch (ch)
 			{
 			case '\\':
-				s = td_parse_escape_sequence(s, end);
-				if (TD_NULL_POINTER==s)
+				s = tdp_parse_escape_sequence(s, end);
+				if (TDP_NULL_POINTER==s)
 				{
-					return TD_NULL_POINTER;
+					return TDP_NULL_POINTER;
 				}
 				break;
 
@@ -1361,46 +1361,46 @@ td_char_t* td_parse_token_char (td_char_t* begin, td_char_t* end, td_char_t toke
 			switch (ch)
 			{
 			case '\\':
-				s = td_parse_escape_sequence(s, end);
-				if (TD_NULL_POINTER==s)
+				s = tdp_parse_escape_sequence(s, end);
+				if (TDP_NULL_POINTER==s)
 				{
-					return TD_NULL_POINTER;
+					return TDP_NULL_POINTER;
 				}
 				break;
 			case '\"':
-				s=td_parse_token_char(s+1, end, '\"');
-				if (TD_NULL_POINTER==s)
+				s=tdp_parse_token_char(s+1, end, '\"');
+				if (TDP_NULL_POINTER==s)
 				{
-					return TD_NULL_POINTER;
+					return TDP_NULL_POINTER;
 				}
 				break;
 			case '\'':
-				s=td_parse_token_char(s+1, end, '\'');
-				if (TD_NULL_POINTER==s)
+				s=tdp_parse_token_char(s+1, end, '\'');
+				if (TDP_NULL_POINTER==s)
 				{
-					return TD_NULL_POINTER;
+					return TDP_NULL_POINTER;
 				}
 				break;
 
 			case '{':
-				s=td_parse_token_char(s+1, end, '}');
-				if (TD_NULL_POINTER==s)
+				s=tdp_parse_token_char(s+1, end, '}');
+				if (TDP_NULL_POINTER==s)
 				{
-					return TD_NULL_POINTER;
+					return TDP_NULL_POINTER;
 				}
 				break;
 			case '(':
-				s=td_parse_token_char(s+1, end, ')');
-				if (TD_NULL_POINTER==s)
+				s=tdp_parse_token_char(s+1, end, ')');
+				if (TDP_NULL_POINTER==s)
 				{
-					return TD_NULL_POINTER;
+					return TDP_NULL_POINTER;
 				}
 				break;
 			case '[':
-				s=td_parse_token_char(s+1, end, ']');
-				if (TD_NULL_POINTER==s)
+				s=tdp_parse_token_char(s+1, end, ']');
+				if (TDP_NULL_POINTER==s)
 				{
-					return TD_NULL_POINTER;
+					return TDP_NULL_POINTER;
 				}
 				break;
 
@@ -1411,7 +1411,7 @@ td_char_t* td_parse_token_char (td_char_t* begin, td_char_t* end, td_char_t toke
 	}
 
 
-	return TD_NULL_POINTER;
+	return TDP_NULL_POINTER;
 }
 
 

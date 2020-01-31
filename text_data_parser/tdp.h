@@ -1,16 +1,16 @@
-﻿#ifndef __td__h__
-#define __td__h__
+﻿#ifndef __tdp__h__
+#define __tdp__h__
 
 /****************************************************************************
 **
-** File: td.h
+** File: tdp.h
 **
 ** Created by MOON, Eui-kwon.
 ** Created on Jan-10th, 2020.
 **
 ** -------------------------------------------------------------------------
-** - Date: Jan-30th, 2020.
-** - Version: 1.1.2.9
+** - Version: 1.2.0.10
+** - Date: Jan-31th, 2020.
 ** - array 다중줄 처리 수정 (bugfix)
 ** - ini 다중줄 처리 수정 (bugfix)
 ** - ini 주석 처리 수정 (bugfix)
@@ -28,19 +28,19 @@
 
 /////////////////////////////////////////////////////////////////////////////
 //===========================================================================
-typedef signed int         td_int_t    ;
-typedef unsigned int       td_uint_t   ;
-typedef unsigned int       td_uint32_t ;
-//===========================================================================
-typedef unsigned int       td_bool_t   ;
-typedef unsigned char      td_byte_t   ;
-//===========================================================================
-typedef char               td_char_t   ;
-//===========================================================================
-typedef float              td_float_t  ;
-typedef double             td_double_t ;
-//===========================================================================
-typedef void*              td_pointer_t;
+typedef signed int    tdp_int_t    ;
+typedef unsigned int  tdp_uint_t   ;
+typedef unsigned int  tdp_uint32_t ;
+
+typedef unsigned int  tdp_bool_t   ;
+typedef unsigned char tdp_byte_t   ;
+
+typedef char          tdp_char_t   ;
+
+typedef float         tdp_float_t  ;
+typedef double        tdp_double_t ;
+
+typedef void*         tdp_pointer_t;
 
 
 
@@ -48,9 +48,10 @@ typedef void*              td_pointer_t;
 
 /////////////////////////////////////////////////////////////////////////////
 //===========================================================================
-#define TD_TRUE  1u
-#define TD_FALSE 0u
-#define TD_NULL_POINTER 0u
+#define TDP_TRUE  1u
+#define TDP_FALSE 0u
+
+#define TDP_NULL_POINTER 0u
 
 
 
@@ -59,9 +60,9 @@ typedef void*              td_pointer_t;
 /////////////////////////////////////////////////////////////////////////////
 //===========================================================================
 #if defined ( __cplusplus )
-#	define TD_API extern "C"
+#	define TDP_API extern "C"
 #else
-#	define TD_API extern
+#	define TDP_API extern
 #endif
 
 
@@ -70,9 +71,9 @@ typedef void*              td_pointer_t;
 
 /////////////////////////////////////////////////////////////////////////////
 //===========================================================================
-#include "td_string.h"
-#include "td_ini.h"
-#include "td_array.h"
+#include "tdp_string.h"
+#include "tdp_ini.h"
+#include "tdp_array.h"
 
 
 
