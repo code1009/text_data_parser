@@ -180,7 +180,7 @@ void example (void)
 	//-----------------------------------------------------------------------
 	printf ("example.object.v_int      = {%d}     \r\n", example.object.v_int     );
 	printf ("example.object.v_double   = {%f}     \r\n", example.object.v_double  );
-	printf ("example.object.v_ip       = {0x%04x} \r\n", example.object.v_ip      );
+	printf ("example.object.v_ip       = {0x%08x} \r\n", example.object.v_ip      );
 	printf ("example.object.v_array[0] = {%s}     \r\n", example.object.v_array[0]);
 	printf ("example.object.v_array[1] = {%s}     \r\n", example.object.v_array[1]);
 	printf ("\r\n");
