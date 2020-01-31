@@ -398,15 +398,15 @@ static void ini_handler_element  (td_ini_t* ctx){_tprintf(_T("ELEMENT ={"));prin
 void td_ini_test (void)
 {
 	//----------------------------------------------------------------------------------------
-	td_pointer_t pointer;
-	td_uint_t    size;
+	td_char_t* spointer;
+	td_uint_t  slength;
 
 
-	pointer = _text_data_string;
-	size    = _tcslen(_text_data_string);
+	spointer = _text_data_string;
+	slength  = _tcslen(_text_data_string);
 	_tprintf (_T("\r\n"));
 	_tprintf (_T("===========================================================================\r\n"));
-	_tprintf (_T("size=%d\r\n"), size);
+	_tprintf (_T("length=%d\r\n"), slength);
 	_tprintf (_T("===========================================================================\r\n"));
 	_tprintf (_text_data_string);
 	_tprintf (_T("\r\n"));
@@ -440,7 +440,7 @@ void td_ini_test (void)
 
 	td_ini_set_handler_element  (ctx, ini_handler_element );
 
-	td_ini_parse (ctx, pointer, size);
+	td_ini_parse (ctx, spointer, slength);
 
 
  	if (ctx->state != TD_INI_STATE_DONE)

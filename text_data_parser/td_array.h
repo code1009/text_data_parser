@@ -76,7 +76,7 @@ TD_API void td_array_set_handler_element       (td_array_t* ctx, td_array_handle
 //===========================================================================
 // parsing
 //===========================================================================
-TD_API void td_array_parse (td_array_t* ctx, td_pointer_t pointer, td_uint_t size);
+TD_API void td_array_parse (td_array_t* ctx, td_char_t* spointer, td_uint_t slength);
 
 
 

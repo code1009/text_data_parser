@@ -414,18 +414,11 @@ static void td_array_state_machine (td_array_t* ctx)
 
 
 //===========================================================================
-void td_array_parse (td_array_t* ctx, td_pointer_t pointer, td_uint_t size)
+void td_array_parse (td_array_t* ctx, td_char_t* spointer, td_uint_t slength)
 {
-	td_char_t* s;
-
-
 	//-----------------------------------------------------------------------
-	s = (td_char_t*) pointer;
-
-
-	//-----------------------------------------------------------------------
-	td_string_begin(&ctx->stream, s);
-	td_string_end  (&ctx->stream, s + size);
+	td_string_begin(&ctx->stream, spointer);
+	td_string_end  (&ctx->stream, spointer + slength);
 
 
 	//-----------------------------------------------------------------------

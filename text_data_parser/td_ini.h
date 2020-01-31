@@ -88,7 +88,7 @@ TD_API void td_ini_set_handler_element  (td_ini_t* ctx, td_ini_handler_t handler
 //===========================================================================
 // parsing
 //===========================================================================
-TD_API void td_ini_parse (td_ini_t* ctx, td_pointer_t pointer, td_uint_t size);
+TD_API void td_ini_parse (td_ini_t* ctx, td_char_t* spointer, td_uint_t slength);
 
 
 
