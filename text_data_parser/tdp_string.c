@@ -240,6 +240,13 @@ void tdp_string_clear (tdp_string_t* p)
 	p->length = 0u;
 }
 
+void tdp_string_copy (tdp_string_t* sp, tdp_string_t* dp)
+{
+	dp->begin  = sp->begin ;
+	dp->end    = sp->end   ;
+	dp->length = sp->length;
+}
+
 void tdp_string_begin (tdp_string_t* p, tdp_char_t* s)
 {
 	p->begin  = s;
@@ -659,6 +666,101 @@ void tdp_string_trim_angle_brackets (tdp_string_t* p)
 }
 
 //===========================================================================
+tdp_bool_t tdp_string_prefix_compare (tdp_string_t* p, tdp_char_t* prefix, tdp_bool_t case_sensitive)
+{
+	tdp_char_t* p1;
+	tdp_char_t* p2;
+	tdp_uint_t  i;
+	tdp_uint_t  count;
+
+
+	count = tdp_c_string_length(prefix);
+	if (p->length < count)
+	{
+		return TDP_FALSE;
+	}
+
+
+	p1 = p->begin;
+	p2 = prefix;
+	for (i=0u; i<count; i++)
+	{
+		if (TDP_FALSE==tdp_c_char_compare(*p1++, *p2++, case_sensitive))
+		{
+			return TDP_FALSE;
+		}
+	}
+
+	return TDP_TRUE;
+}
+
+tdp_bool_t tdp_string_suffix_compare (tdp_string_t* p, tdp_char_t* suffix, tdp_bool_t case_sensitive)
+{
+	tdp_char_t* p1;
+	tdp_char_t* p2;
+	tdp_uint_t  i;
+	tdp_uint_t  count;
+
+
+	count = tdp_c_string_length(suffix);
+	if (p->length < count)
+	{
+		return TDP_FALSE;
+	}
+
+
+	p1 = p->begin + (p->length-count);
+	p2 = suffix;
+	for (i=0u; i<count; i++)
+	{
+		if (TDP_FALSE==tdp_c_char_compare(*p1++, *p2++, case_sensitive))
+		{
+			return TDP_FALSE;
+		}
+	}
+
+	return TDP_TRUE;
+}
+
+tdp_bool_t tdp_string_prefix_suffix_compare (tdp_string_t* p, tdp_char_t* prefix, tdp_char_t* suffix, tdp_bool_t case_sensitive)
+{
+	if (TDP_FALSE == tdp_string_prefix_compare(p, prefix, case_sensitive))
+	{
+		return TDP_FALSE;
+	}
+
+	if (TDP_FALSE == tdp_string_suffix_compare(p, suffix, case_sensitive))
+	{
+		return TDP_FALSE;
+	}
+
+	return TDP_TRUE;
+}
+
+void tdp_string_part_without_prefix_suffix (tdp_string_t* p, tdp_char_t* prefix, tdp_char_t* suffix, tdp_bool_t case_sensitive, tdp_string_t* dp)
+{
+	tdp_string_clear(dp);
+
+	if (TDP_FALSE==tdp_string_prefix_suffix_compare(p, prefix, suffix, case_sensitive))
+	{
+		return;
+	}
+
+
+	tdp_uint_t prefix_length;
+	tdp_uint_t suffix_length;
+
+
+	prefix_length = tdp_c_string_length(prefix);
+	suffix_length = tdp_c_string_length(suffix);
+
+	tdp_string_copy (p, dp);
+
+	dp->begin  += prefix_length;
+	dp->end    -= suffix_length;
+	dp->length -= (prefix_length+suffix_length);
+}
+
 tdp_bool_t tdp_string_compare (tdp_string_t* p, tdp_char_t* s, tdp_bool_t case_sensitive)
 {
 	tdp_char_t* p1;
