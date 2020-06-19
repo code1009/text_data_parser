@@ -119,7 +119,10 @@ static void tdp_array_transition_state (tdp_array_t* ctx, tdp_array_state_t stat
 		}
 	}
 
-	ctx->state = state;
+	if (TDP_ARRAY_STATE_ERROR!=ctx->state)
+	{
+		ctx->state = state;
+	}
 }
 
 //===========================================================================

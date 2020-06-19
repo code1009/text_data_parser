@@ -185,7 +185,10 @@ static void tdp_ini_transition_state (tdp_ini_t* ctx, tdp_ini_state_t state)
 		}
 	}
 
-	ctx->state = state;
+	if (TDP_INI_STATE_ERROR!=ctx->state)
+	{
+		ctx->state = state;
+	}
 }
 
 //===========================================================================
